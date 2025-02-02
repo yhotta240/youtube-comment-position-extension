@@ -4,11 +4,19 @@ const manifestData = chrome.runtime.getManifest();
 const handleSampleTool = (isEnabled) => {
   if (isEnabled) {
     console.log(`${manifestData.name} がONになりました`);
+    observer.observe(document.body, { childList: true, subtree: true });
   } else {
     console.log(`${manifestData.name} がOFFになりました`);
+    observer.disconnect();
   }
 };
 
+const height = () => {
+  const header = document.querySelector('#container.style-scope.ytd-masthead');
+  const headerHeight = header ? header.offsetHeight : 0;
+  const windowHeight = window.innerHeight;
+  return windowHeight - headerHeight - 155;
+};
 
 // 最初の読み込みまたはリロード後に実行する処理
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
@@ -16,70 +24,72 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
   handleSampleTool(isEnabled);
 });
 
-// ストレージの値が変更されたときに実行される処理
-chrome.storage.onChanged.addListener((changes) => {
-  isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
-  handleSampleTool(isEnabled);
+// // ストレージの値が変更されたときに実行される処理
+// chrome.storage.onChanged.addListener((changes) => {
+//   isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
+//   handleSampleTool(isEnabled);
+// });
+
+const getElements = () => ({
+  below: document.querySelector('#below.style-scope.ytd-watch-flexy'),
+  secondary: document.querySelector('#secondary.style-scope.ytd-watch-flexy'),
+  secondaryInner: document.querySelector('#secondary-inner.style-scope.ytd-watch-flexy'),
+  comments: document.querySelector('#comments.style-scope.ytd-watch-flexy'),
+  related: document.querySelector('#related.style-scope.ytd-watch-flexy'),
 });
 
-
-console.log("start");
-
-
+let preRespWidth = null;
+let isReloaded = false;
 const observer = new MutationObserver(() => {
-  // コメントセクション（#sections）を取得
-  const commentSection = document.querySelector('#sections.style-scope.ytd-comments');
-  const relatedVideo = document.querySelector('#related.style-scope.ytd-watch-flexy');
-  const secondary = document.querySelector('#secondary');
+  const elements = getElements();
+  if (!elements.below || !elements.secondary || !elements.secondaryInner) return;
+  const isLargeScreen = window.innerWidth >= 1017;
 
-  if (commentSection && secondary && !document.querySelector('#custom-sidebar')) {
-    insertSidebar(secondary, commentSection);
+  if (!isReloaded) {
+    handleFirstRender(elements, isLargeScreen);
+    isReloaded = true;
+  } else {
+    if (isLargeScreen && preRespWidth === 'medium') {
+      console.log("Switched to large screen layout");
+      insertSecondary(elements);
+    } else if (!isLargeScreen && preRespWidth === 'large') {
+      console.log("Switched to medium screen layout");
+      insertPrimary(elements);
+    }
   }
-  if (relatedVideo && secondary && !document.querySelector('#custom-sidebar')) {
-    relatedVideo.remove();
-  }
+
+  preRespWidth = isLargeScreen ? 'large' : 'medium';
 });
 
-// ページ全体を監視（YouTubeの動的な読み込み対応）
-observer.observe(document.body, { childList: true, subtree: true });
+const handleFirstRender = (elements, isLargeScreen) => {
+  console.log("Custom tab is not present, rendering...");
+  if (isLargeScreen) {
+    console.log("large screen layout");
+    insertSecondary(elements);
+  } else {
+    console.log("medium screen layout");
+    insertPrimary(elements);
+  }
+};
 
+const insertSecondary = (elements) => {
+  const comments = elements.comments;
+  styleComments(comments);
+  elements.secondaryInner.insertBefore(comments, elements.secondaryInner.firstChild);
+};
 
-function insertSidebar(secondary, commentSection) {
+const insertPrimary = (elements) => {
+  const comments = elements.comments;
+  styleComments(comments);
+  elements.below.appendChild(comments);
+  setTimeout(() => {
+    elements.below.appendChild(elements.related);
+  }, 100);
+};
 
-  const windowHeight = window.innerHeight;
-  const sidebar = document.createElement('div');
-  sidebar.id = 'custom-sidebar';
-  sidebar.className = 'style-scope ytd-comments';
-  sidebar.style.padding = '10px';
-  sidebar.style.marginBottom = '10px';
-  sidebar.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
-  sidebar.style.borderRadius = '4px';
-  sidebar.style.overflowY = 'auto';
-  sidebar.style.maxHeight = '600px';
-
-  // コメントセクションをサイドバーに移動
-  sidebar.appendChild(commentSection);
-
-  // サイドバー用の要素を作成
-  // const commentsHeader = commentSection.querySelector('#header.style-scope.ytd-item-section-renderer');
-  // if (commentsHeader) {
-  //   const footer = document.createElement('div');
-  //   footer.id = 'custom-footer';
-  //   footer.style.position = 'absolute';
-  //   footer.style.bottom = '0';
-  //   footer.style.left = '0';
-  //   footer.style.width = '100%';
-  //   footer.style.zIndex = '1000';
-  //   footer.appendChild(commentsHeader);
-
-  //   // フッタをサイドバーに追加
-  //   sidebar.appendChild(footer);
-  // } else {
-  //   console.log('コメントセクションのヘッダーが見つかりません');
-  // }
-  // secondaryの先頭に挿入
-  secondary.insertBefore(sidebar, secondary.firstChild);
-
-}
-
-
+const styleComments = (comments) => {
+  comments.style.padding = '0 10px 0 10px';
+  comments.style.margin = '0 0 20px 0';
+  comments.style.maxHeight = `${height()}px`;
+  comments.style.overflowY = 'auto';
+};
