@@ -10,7 +10,7 @@ const manifestData = chrome.runtime.getManifest();
 enabledElement.addEventListener('change', (event) => {
   isEnabled = event.target.checked;
   chrome.storage.local.set({ isEnabled: isEnabled }, () => {
-    messageOutput(dateTime(), isEnabled ? `${manifestData.name} は無効になっています` : `${manifestData.name} は無効になっています`);
+    messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
   });
 });
 
@@ -21,7 +21,7 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
     isEnabled = data.isEnabled || false;
     enabledElement.checked = isEnabled;
   }
-  messageOutput(dateTime(), isEnabled ? `${manifestData.name} は無効になっています` : `${manifestData.name} は無効になっています`);
+  messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
 });
 
 
@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // 情報タブ: 
-  // ストアリンクのクリックイベントを設定
   const storeLink = document.getElementById('store_link');
   storeLink.href = `https://chrome.google.com/webstore/detail/${chrome.runtime.id}`;
   if (storeLink) clickURL(storeLink);
@@ -90,12 +89,11 @@ document.addEventListener('DOMContentLoaded', function () {
 function saveSettings(datetime, message, value) {
   const settings = {
     sampleValue: value,
-    // storageに保存するための設定をここに追加する
   };
 
   // ストレージに設定を保存し，保存完了後にメッセージを出力
   chrome.storage.local.set({ settings: settings }, () => {
-    messageOutput(datetime, message); // 保存時の日時とメッセージを出力
+    messageOutput(datetime, message);
   });
 }
 
@@ -105,36 +103,30 @@ function clickURL(link) {
   const url = link.href ? link.href : link;
   if (link instanceof HTMLElement) {
     link.addEventListener('click', (event) => {
-      event.preventDefault(); // デフォルトのリンク遷移を防止
-      chrome.tabs.create({ url }); // 新しいタブでURLを開く
+      event.preventDefault();
+      chrome.tabs.create({ url });
     });
   }
 }
 
 
-// メッセージを指定した日時とともに出力する関数
 function messageOutput(datetime, message) {
   messageDiv.innerHTML += '<p class="m-0">' + datetime + ' ' + message + '</p>'; // <p> タグで囲んでメッセージを新しい行に追加
 }
-// メッセージをクリアする処理
 document.getElementById('messageClearButton').addEventListener('click', () => {
   messageDiv.innerHTML = '<p class="m-0">' + '' + '</p>'; // メッセージ表示エリアを空にする
 });
 
 
 // 現在の時間を取得する
-// "年-月-日 時:分" の形式で返す（例：2024-11-02 10:52）
 function dateTime() {
-  const now = new Date();// 現在の日付と時刻を取得
-
-  // 各部分の値を取得し2桁に整形
+  const now = new Date();
   const year = now.getFullYear();                                    // 年
   const month = String(now.getMonth() + 1).padStart(2, '0');         // 月（0始まりのため+1）
   const day = String(now.getDate()).padStart(2, '0');                // 日
   const hours = String(now.getHours()).padStart(2, '0');             // 時
   const minutes = String(now.getMinutes()).padStart(2, '0');         // 分
 
-  // フォーマットした日時を文字列で返す
   const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
   return formattedDateTime;
 }
