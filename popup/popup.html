@@ -10,7 +10,7 @@
 </head>
 
 <body class="container pb-3 p-2 ">
-  <div class="d-flex  my-2 "> 
+  <div class="d-flex  my-2 ">
     <img src="../icons/icon.png" class="my-auto mx-2" alt="message clear button" height="28">
     <h3 class="my-auto fs-3" id="title-header"></h3>
   </div>
@@ -50,22 +50,53 @@
     <div class="tab-pane fade mt-2 mx-2 show active" id="settings" role="tabpanel" style="margin-bottom: 180px;"
       aria-labelledby="settings-tab">
       <ul class="list-group list-group-flush">
-        <!-- ファイル名の入力 -->
         <li class="list-group-item">
-          <h5 class="">カスタマイズ</h5>
-          <label for="blur-value" class="form-label d-flex">項目: <div class="ps-2" id="blur-intensity"></div></label>
+          <div class="fs-5 fw-bold">横幅 1017px 以上: large サイズ</div>
+          <div class="d-flex align-items-center justify-content-between my-3">
+            <label for="height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ</label>
+            <input type="number" class="mx-2 form-control " id="height-comments" min="0" max="1000" value="700">
+            <div class="m-auto ">px</div>
+          </div>
+          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
+          <div class="form-check my-2">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="large-radioDefault">
+            <label class="form-check-label" for="large-radioDefault">
+              デフォルト
+            </label>
+          </div>
+          <div class="form-check my-2">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="large-radio-leftside">
+            <label class="form-check-label" for="large-radio-leftside">
+              コメント欄をサイドバー（左）に配置
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled>
+            <label class="form-check-label" for="flexCheckDefault">
+              スクロール時，動画を固定する（オプション）
+            </label>
+          </div>
         </li>
-        <!-- ファイル形式の選択 -->
         <li class="list-group-item">
-          <h5 class="">例</h5>
-          <ul class="my-2 ">
-            <li>
-            </li>
-            <li>
-            </li>
-            <li>
-            </li>
-          </ul>
+          <div class="fs-5 fw-bold">横幅 1017px 未満: medium サイズ</div>
+          <div class="d-flex align-items-center justify-content-between my-3">
+            <label for="height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ</label>
+            <input type="number" class="mx-2 form-control " id="height-comments" min="0" max="1000" value="700">
+            <div class="m-auto ">px</div>
+          </div>
+          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="medium-radioDefault">
+            <label class="form-check-label" for="medium-radioDefault">
+              デフォルト
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="medium-under-player">
+            <label class="form-check-label" for="medium-under-player">
+              コメント欄を動画プレイヤーの直下に配置
+            </label>
+          </div>
         </li>
         <li class="list-group-item">
         </li>
@@ -75,30 +106,43 @@
     <!-- 概要 -->
     <div class="tab-pane fade mt-2 mx-2" id="description" role="tabpanel" style="margin-bottom: 200px;"
       aria-labelledby="description-tab">
-      <div>
+      <div class="p-2">
         <h5>概要</h5>
-        <p class="my-1 fw-bold">説明:</p>
-        <p>
-          このChrome拡張機能を使えば，○○できます。
+        <p>YouTube のコメント欄の位置を変える拡張機能です．</p>
+
+        <p class="my-1 fw-bold">説明</p>
+        <p>この拡張機能は，YouTube のコメント欄の位置を変更できるようにするものです．通常，YouTube のコメント欄は動画の下に表示されますが，本拡張機能を使用すると，コメント欄を動画の横に表示することができます．
         </p>
+        <p>「コメントを見ながら動画を楽しみたい」という方におすすめの拡張機能です．</p>
+
         <p class="my-1 fw-bold">拡張機能の主な特徴:</p>
-        <p class="mt-1">機能の説明を書く</p>
-        <p class="my-1 fw-bold">注意点:</p>
-        <p class="mt-1">注意点を書く</p>
+        <ul>
+          <li>コメント欄を動画の横（サイドバー）に配置</li>
+          <li>サイドバーだけでなく，動画の直下や折りたたみ可能な配置も選択可能</li>
+          <li>コメントを見ながら動画視聴が可能</li>
+          <li>画面サイズに応じて最適なレイアウトを適用</li>
+        </ul>
+
+        <p class="my-1 fw-bold">仕様</p>
+        <ul>
+          <li><strong>1017px 以上:</strong> large サイズ（コメント欄を動画の横に配置）</li>
+          <li><strong>1017px 未満:</strong> medium サイズ（コメント欄を動画の下または折りたたみ可能に配置）</li>
+        </ul>
+
       </div>
     </div>
 
     <!-- チュートリアル -->
     <div class="tab-pane fade mt-2 mx-2" id="document" role="tabpanel" style="margin-bottom: 200px;"
       aria-labelledby="document-tab">
-      
+
       <p class="mb-1 fw-bold">
         Sampleを有効にする
       </p>
       <ul class="m-1">
         <li>拡張機能のポップアップを開き，「Sampleを有効にする」のトグルボタンをクリック</li>
       </ul>
-      <div class="mb-3">無効にする場合も同じ操作を行ってください。</div>
+      <div class="mb-3">無効にする場合も同じ操作を行ってください．</div>
       <p class="mb-1 fw-bold">
         設定
       </p>
@@ -135,9 +179,7 @@
         <li class="list-group-item">
           <ul>
             <li>
-              <a class=""
-                href=""
-                id="store_link">
+              <a class="" href="" id="store_link">
                 ストアページに移動
               </a>
             </li>
@@ -171,7 +213,7 @@
         </li>
         <li class="list-group-item">
           <p>サイトへのアクセス:</p>
-          <p id="permission-info">アクセスしたウェブサイト上にある自分の全データの読み取りと変更をこの拡張機能に許可します。</p>
+          <p id="permission-info">アクセスしたウェブサイト上にある自分の全データの読み取りと変更をこの拡張機能に許可します．</p>
           <span id="site-access">Checking...</span>
         </li>
         </li>
@@ -185,11 +227,11 @@
         </li>
         <li class="list-group-item">
           <p class="m-0">提供元: </p>
-          <p class="m-0"> </p>
+          <p class="m-0">yhotta240</p>
         </li>
         <li class="list-group-item">
           <p class="m-0">デベロッパー: </p>
-          <p class="m-0">example@example.com </p>
+          <p class="m-0">yhotta240@example.com </p>
         </li>
         <li class="list-group-item">
           <p class="m-0">GitHub: </p>
@@ -202,8 +244,8 @@
       </ul>
       <div class="ps-0 " style="margin-bottom: 180px;">
         <h5 class="ps-1">プライバシー</h5>
-        <p class="ps-3">お客様のデータを収集または使用しないことを表明しています。</p>
-        <p class="ps-3">お客様のデータについて以下を宣言します。</p>
+        <p class="ps-3">お客様のデータを収集または使用しないことを表明しています．</p>
+        <p class="ps-3">お客様のデータについて以下を宣言します．</p>
         <div class="m-2">
           <ul>
             <li>
