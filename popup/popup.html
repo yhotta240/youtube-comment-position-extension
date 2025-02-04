@@ -53,8 +53,8 @@
         <li class="list-group-item">
           <!-- Large サイズ: 横幅 1017px 以上  -->
           <div class="fs-5 fw-bold">Large サイズ: 横幅 1017px 以上 </div>
-<!-- 
-          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block"> -->
+
+          <img id="large-image" src="" alt="large-image" height="200" class="pt-2 mx-auto d-block">
 
           <div class="d-flex align-items-center justify-content-between my-3">
             <label for="large-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
@@ -67,14 +67,14 @@
             <label for="large-layout-position " class="form-label text-nowrap  m-auto">コメント欄の配置：</label>
             <select id="large-layout-position" class="form-select form-select-sm" aria-label="large-layout">
               <option value="large-position-default">デフォルト</option>
-              <option value="large-position-leftside">サイドバー（左）に配置</option>
+              <option value="large-position-leftside">サイドバー（左）</option>
             </select>
           </div>
 
           <div class="form-check ">
             <input class="form-check-input" type="checkbox" value="" id="large-layout-option">
-            <label class="form-check-label" for="large-layout-option">
-              スクロール時，動画を固定する（オプション）
+            <label class="form-check-label text-nowrap" for="large-layout-option">
+              スクロール時，動画プレイヤーを固定する（オプション）
             </label>
           </div>
 
@@ -83,8 +83,8 @@
         <li class="list-group-item">
           <div class="fs-5 fw-bold">Medium サイズ: 横幅 1017px 未満</div>
 
-          <!-- <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block"> -->
-
+          <img id="medium-image" src="" alt="medium-image" height="200" class="pt-2 mx-auto d-block">
+          
           <div class="d-flex align-items-center justify-content-between my-3">
             <label for="medium-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
             <input type="number" class="mx-2 form-control form-control-sm" id="medium-height-comments" min="0"
@@ -96,15 +96,15 @@
             <label for="medium-layout-position " class="form-label text-nowrap m-auto">コメント欄の配置：</label>
             <select id="medium-layout-position" class="form-select form-select-sm" aria-label="medium-layout">
               <option value="medium-position-default">デフォルト</option>
-              <option value="medium-position-undermetadata">動画メタデータの下に配置</option>
-              <option value="medium-position-underplayer">動画プレイヤーの下に配置</option>
+              <option value="medium-position-undermetadata">動画メタデータの下</option>
+              <option value="medium-position-underplayer">動画プレイヤーの下</option>
             </select>
           </div>
 
           <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" id="medium-layout-option">
-            <label class="form-check-label" for="medium-layout-option">
-              スクロール時，動画を固定する（オプション）
+            <label class="form-check-label text-nowrap" for="medium-layout-option">
+              スクロール時，動画プレイヤーを固定する（オプション）
             </label>
           </div>
 
