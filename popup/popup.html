@@ -51,52 +51,61 @@
       aria-labelledby="settings-tab">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          <div class="fs-5 fw-bold">横幅 1017px 以上: large サイズ</div>
+          <!-- Large サイズ: 横幅 1017px 以上  -->
+          <div class="fs-5 fw-bold">Large サイズ: 横幅 1017px 以上 </div>
+
+          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
+
           <div class="d-flex align-items-center justify-content-between my-3">
-            <label for="height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ</label>
-            <input type="number" class="mx-2 form-control " id="height-comments" min="0" max="1000" value="700">
+            <label for="large-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
+            <input type="number" class="mx-2 form-control form-control-sm " id="large-height-comments" min="0" max="1000">
             <div class="m-auto ">px</div>
           </div>
-          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
-          <div class="form-check my-2">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="large-radioDefault">
-            <label class="form-check-label" for="large-radioDefault">
-              デフォルト
-            </label>
+
+          <div class="d-flex align-items-center justify-content-between">
+            <label for="large-layout-position " class="form-label text-nowrap  m-auto">コメント欄の配置：</label>
+            <select id="large-layout-position" class="form-select form-select-sm" aria-label="large-layout">
+              <option value="large-position-default">デフォルト</option>
+              <option value="large-position-leftside">サイドバー（左）に配置</option>
+            </select>
           </div>
-          <div class="form-check my-2">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="large-radio-leftside">
-            <label class="form-check-label" for="large-radio-leftside">
-              コメント欄をサイドバー（左）に配置
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled>
-            <label class="form-check-label" for="flexCheckDefault">
+
+          <div class="form-check ">
+            <input class="form-check-input" type="checkbox" value="" id="large-layout-option">
+            <label class="form-check-label" for="large-layout-option">
               スクロール時，動画を固定する（オプション）
             </label>
           </div>
+
         </li>
+        <!-- Medium サイズ: 横幅 1017px 未満 -->
         <li class="list-group-item">
-          <div class="fs-5 fw-bold">横幅 1017px 未満: medium サイズ</div>
+          <div class="fs-5 fw-bold">Medium サイズ: 横幅 1017px 未満</div>
+
+          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
+
           <div class="d-flex align-items-center justify-content-between my-3">
-            <label for="height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ</label>
-            <input type="number" class="mx-2 form-control " id="height-comments" min="0" max="1000" value="700">
+            <label for="medium-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
+            <input type="number" class="mx-2 form-control form-control-sm" id="medium-height-comments" min="0" max="1000">
             <div class="m-auto ">px</div>
           </div>
-          <img src="../icons/comments.png" alt="comments" height="100" class="mx-auto d-block">
+
+          <div class="d-flex align-items-center justify-content-between">
+            <label for="medium-layout-position " class="form-label text-nowrap m-auto">コメント欄の配置：</label>
+            <select id="medium-layout-position" class="form-select form-select-sm" aria-label="medium-layout">
+              <option value="medium-position-default">デフォルト</option>
+              <option value="medium-position-undermetadata">動画メタデータの下に配置</option>
+              <option value="medium-position-underplayer">動画プレイヤーの下に配置</option>
+            </select>
+          </div>
+
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="medium-radioDefault">
-            <label class="form-check-label" for="medium-radioDefault">
-              デフォルト
+            <input class="form-check-input" type="checkbox" value="" id="medium-layout-option">
+            <label class="form-check-label" for="medium-layout-option">
+              スクロール時，動画を固定する（オプション）
             </label>
           </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="medium-under-player">
-            <label class="form-check-label" for="medium-under-player">
-              コメント欄を動画プレイヤーの直下に配置
-            </label>
-          </div>
+
         </li>
         <li class="list-group-item">
         </li>
