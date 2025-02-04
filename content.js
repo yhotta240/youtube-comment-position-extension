@@ -8,7 +8,7 @@ const defaultSettings = {
     positionImgId: "large-image",
     positionImage: "./images/large-layout-comments-secondary-left.png",
     heightId: "large-height-comments",
-    height: 700,
+    height: null,
     optionId: "large-layout-option",
     option: false,
     positionPrefix: "large",
@@ -19,7 +19,7 @@ const defaultSettings = {
     positionImgId: "medium-image",
     positionImage: "./images/medium-layout-comments-default.png",
     heightId: "medium-height-comments",
-    height: 500,
+    height: null,
     optionId: "medium-layout-option",
     option: false,
     positionPrefix: "medium",
@@ -73,7 +73,9 @@ const settingsLayout = () => (
     isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
     isLargeDefaultOption: settings.largeLayout.option,
     isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
-    isMediumDefaultOption: settings.mediumLayout.option
+    isMediumDefaultOption: settings.mediumLayout.option,
+    largeHeight: settings.largeLayout.height,
+    mediumHeight: settings.mediumLayout.height
   }
 )
 
@@ -241,23 +243,32 @@ const height = () => {
   const header = document.querySelector('#container.style-scope.ytd-masthead');
   const headerHeight = header ? header.offsetHeight : 0;
   const windowHeight = window.innerHeight;
-  return windowHeight - headerHeight - 155;
+  // console.log(headerHeight, windowHeight, windowHeight - headerHeight - 155);
+  const isLargeScreen = window.innerWidth >= 1017;
+  let height = null;
+  if (isLargeScreen) {
+    height = settingsLayout().largeHeight;
+    settings.largeLayout.height = height ? height : windowHeight - headerHeight - 155;
+  } else {
+    height = settingsLayout().mediumHeight;
+    settings.mediumLayout.height = height ? height : windowHeight - headerHeight - 255;
+  }
+  chrome.storage.local.set({ settings: settings });
+  return height ? height : windowHeight - headerHeight - 155;
 };
+
 
 const removeCinematics = () => {
   let attempts = 0;
   const interval = setInterval(() => {
     const cinematics = getElements().cinematics;
-    // console.log('cinematics', cinematics);
     if (cinematics) {
       cinematics.remove();
-      // console.log('cinematics removed');
       clearInterval(interval);
     }
     attempts++;
     if (attempts >= 10) {
       clearInterval(interval);
-      // console.log('Max attempts reached, stopping interval');
     }
   }, 1000);
 };
