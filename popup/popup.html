@@ -84,7 +84,7 @@
           <div class="fs-5 fw-bold">Medium サイズ: 横幅 1017px 未満</div>
 
           <img id="medium-image" src="" alt="medium-image" height="200" class="pt-2 mx-auto d-block">
-          
+
           <div class="d-flex align-items-center justify-content-between my-3">
             <label for="medium-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
             <input type="number" class="mx-2 form-control form-control-sm" id="medium-height-comments" min="0"
@@ -136,49 +136,102 @@
 
         <p class="my-1 fw-bold">仕様</p>
         <ul>
-          <li><strong>1017px 以上:</strong> large サイズ（コメント欄を動画の横に配置）</li>
-          <li><strong>1017px 未満:</strong> medium サイズ（コメント欄を動画の下または折りたたみ可能に配置）</li>
+          <li><strong>large レイアウト：</strong>横幅 1017px 以上（コメント欄を動画の横に配置）</li>
+          <li><strong>medium レイアウト：</strong>横幅 1017px 未満（コメント欄を動画の下または動画メタデータの下に配置）</li>
         </ul>
 
       </div>
     </div>
 
-    <!-- チュートリアル -->
+    <!-- ドキュメント -->
     <div class="tab-pane fade mt-2 mx-2" id="document" role="tabpanel" style="margin-bottom: 200px;"
       aria-labelledby="document-tab">
-
-      <p class="mb-1 fw-bold">
-        Sampleを有効にする
-      </p>
-      <ul class="m-1">
-        <li>拡張機能のポップアップを開き，「Sampleを有効にする」のトグルボタンをクリック</li>
-      </ul>
-      <div class="mb-3">無効にする場合も同じ操作を行ってください．</div>
-      <p class="mb-1 fw-bold">
-        設定
-      </p>
-      <ul>
-        <li>
-
-        </li>
-        <li>
-
-        </li>
-        <li>
-
-        </li>
-      </ul>
-      <p class="mb-1 fw-bold">
-        操作方法
-      </p>
-      <ul>
-        <li>
-
-        </li>
-        <li>
-
-        </li>
-      </ul>
+      <div class="accordion" id="accordion-word">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+              用語集
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div class="accordion-body p-1">
+              <ul>
+                <li class="mb-1">
+                  <div class="fw-bold">コメント欄：comments</div>
+                  YouTubeの動画ページにおいて，視聴者が動画に対する意見や感想を投稿できるエリア．デフォルトでは動画の下に表示される．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">サイドバー：secondary</div>
+                  画面の横（左側）に表示されるサブエリア（セカンダリエリアとも呼ばれる）で，通常，メインコンテンツの隣に位置する．拡張機能では，コメント欄をこの位置に表示できる．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">large レイアウト：</div>
+                  ウィンドウの横幅が1017px以上の状態．サイドバーが表示される．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">medium レイアウト：</div>
+                  ウィンドウの横幅が1017px未満の状態．サイドバーが表示されない．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">動画プレイヤー：player</div>
+                  動画の再生を担当するインターフェースやコンポーネント．YouTubeのページでは，動画を再生するためのボタン，音量調整，進行状況バー，再生停止ボタンなどが含まれたUIを指す．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">動画メタデータ：metadata</div>
+                  動画に関連する情報や属性のこと．YouTubeでは，タイトル，チャネル名，評価（高評価・低評価），概要欄，公開日，再生回数などが動画メタデータに含まれる．
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOTwo"
+              aria-expanded="true" aria-controls="collapseTwo">
+              チュートリアル
+            </button>
+          </h2>
+          <div id="collapseOTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+            <div class="accordion-body p-3">
+              <p class="mb-1 fw-bold">
+                レイアウトを設定する
+              </p>
+              <ul>
+                <li class="mb-1">
+                  コメント欄の高さを設定<br>
+                  ※入力されていない場合は，自動で最適な高さが設定されます．
+                </li>
+                <li class="mb-1">
+                  コメント欄の配置を選択<br>
+                </li>
+              </ul>
+              <p class="mb-1 fw-bold">
+                YouTube Comment Position をONにする
+              </p>
+              <ul class="">
+                <li>「YouTube Comment Position をONにする」のトグルボタンをクリック
+                  <div>無効にする場合も同じ操作を行ってください．</div>
+                </li>
+              </ul>
+              <p class="mb-1 fw-bold">
+                YouTube の動画ページを開く
+              </p>
+              <ul class="">
+                <li>
+                  YouTube の動画ページを開く．
+                </li>
+                <li>
+                  設定した通りにコメント欄が表示されていることを確認する．
+                </li>
+                <li>
+                  正しく適用されていれば完了！ 🎉
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 詳細情報 -->
