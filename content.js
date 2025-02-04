@@ -1,37 +1,19 @@
-let isEnabled = false; // ツールの有効状態を示すフラグ（初期値は無効）
+let isEnabled = false;
+let settings = {};
+
 const manifestData = chrome.runtime.getManifest();
 // Sampleツールの有効/無効を処理する関数
 const handleSampleTool = (isEnabled) => {
   if (isEnabled) {
     console.log(`${manifestData.name} がONになりました`);
     observer.observe(document.body, { childList: true, subtree: true });
-    let attempts = 0;
-    const interval = setInterval(() => {
-      const cinematics = getElements().cinematics;
-      console.log('cinematics', cinematics);
-      if (cinematics) {
-      cinematics.remove();
-      console.log('cinematics removed');
-      clearInterval(interval);
-      }
-      attempts++;
-      if (attempts >= 10) {
-      clearInterval(interval);
-      console.log('Max attempts reached, stopping interval');
-      }
-    }, 1000);
+    removeCinematics();
   } else {
     console.log(`${manifestData.name} がOFFになりました`);
     observer.disconnect();
   }
 };
 
-const height = () => {
-  const header = document.querySelector('#container.style-scope.ytd-masthead');
-  const headerHeight = header ? header.offsetHeight : 0;
-  const windowHeight = window.innerHeight;
-  return windowHeight - headerHeight - 155;
-};
 
 // 最初の読み込みまたはリロード後に実行する処理
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
@@ -45,6 +27,7 @@ chrome.storage.onChanged.addListener((changes) => {
   isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
   handleSampleTool(isEnabled);
 });
+
 
 const getElements = () => ({
   primary: document.querySelector("#primary.style-scope.ytd-watch-flexy"),
@@ -88,14 +71,7 @@ const observer = new MutationObserver(() => {
 
   if (preUrl !== currentVideoId && preUrl) {
     console.log("URL changed!");
-    setTimeout(() => {
-      const cinematics = getElements().cinematics;
-      console.log('cinematics', cinematics);
-      if (cinematics) {
-        cinematics.remove();
-        console.log('cinematics removed');
-      }
-    }, 1000);
+    removeCinematics();
     preUrl = currentVideoId;
   } else {
     preUrl = currentVideoId;
@@ -168,11 +144,34 @@ const handleResize = () => {
     } else {
       elements.below.style.paddingTop = '0px';
     }
-    console.log(playerHeight, primaryInnerWidth, primaryInnerWidth * (9 / 16), window.innerWidth);
+    // console.log(playerHeight, primaryInnerWidth, primaryInnerWidth * (9 / 16), window.innerWidth);
   }, 100);
 };
 
+const height = () => {
+  const header = document.querySelector('#container.style-scope.ytd-masthead');
+  const headerHeight = header ? header.offsetHeight : 0;
+  const windowHeight = window.innerHeight;
+  return windowHeight - headerHeight - 155;
+};
 
+const removeCinematics = () => {
+  let attempts = 0;
+  const interval = setInterval(() => {
+    const cinematics = getElements().cinematics;
+    console.log('cinematics', cinematics);
+    if (cinematics) {
+      cinematics.remove();
+      console.log('cinematics removed');
+      clearInterval(interval);
+    }
+    attempts++;
+    if (attempts >= 10) {
+      clearInterval(interval);
+      console.log('Max attempts reached, stopping interval');
+    }
+  }, 1000);
+};
 
 
 
