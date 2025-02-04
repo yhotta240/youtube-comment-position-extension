@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Comment Position",
-  "version": "0.3.2",
+  "name": "YouTube コメントポジション - YouTube Comment Position",
+  "version": "1.0.0",
   "description": "YouTubeのコメント欄の位置を変える拡張機能です．",
   "icons": {
     "48": "icons/icon.png"
