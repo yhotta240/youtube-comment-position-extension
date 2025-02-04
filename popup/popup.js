@@ -6,11 +6,20 @@ const messagePanel = document.getElementById('messagePanel');
 const messageDiv = document.getElementById('message');
 const manifestData = chrome.runtime.getManifest();
 
+const imagesPosition = {
+  "large-position-default": "./images/large-layout-comments-default.png",
+  "large-position-leftside": "./images/large-layout-comments-secondary.png",
+  "medium-position-default": "./images/medium-layout-comments-default.png",
+  "medium-position-undermetadata": "./images/medium-layout-comments-under-metadata.png",
+  "medium-position-underplayer": "./images/medium-layout-comments-under-player.png",
+};
+
 const defaultSettings = {
   largeLayout: {
     positionId: "large-layout-position",
     position: "large-position-leftside",
-    // positionImage: "../icons/comments.png",
+    positionImgId: "large-image",
+    positionImage: "./images/large-layout-comments-secondary-left.png",
     heightId: "large-height-comments",
     height: 700,
     optionId: "large-layout-option",
@@ -20,7 +29,8 @@ const defaultSettings = {
   mediumLayout: {
     positionId: "medium-layout-position",
     position: "medium-position-default",
-    // positionImage: "../icons/comments.png",
+    positionImgId: "medium-image",
+    positionImage: "./images/medium-layout-comments-default.png",
     heightId: "medium-height-comments",
     height: 500,
     optionId: "medium-layout-option",
@@ -52,8 +62,8 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
 function popupLoad(data) {
   const settings = data || defaultSettings;
   console.log("settings", settings);
-
   ["largeLayout", "mediumLayout"].forEach((layout) => {
+
     ["height", "position"].forEach((prop) => {
       const key = settings[layout];
       const elem = document.getElementById(key[`${prop}Id`]);
@@ -64,6 +74,19 @@ function popupLoad(data) {
         chrome.storage.local.set({ settings }, () => console.log("設定を保存しました", settings));
       });
     });
+  });
+
+  ["largeLayout", "mediumLayout"].forEach((layout) => {
+    const layoutKey = settings[layout];
+    const positionImage = layoutKey.positionImage;
+    const imgId = document.getElementById(layoutKey.positionImgId);
+    imgId.src = imagesPosition[layoutKey.position];
+    console.log(layoutKey, positionImage, imgId, imagesPosition[layoutKey.position]);
+    const position = document.getElementById(layoutKey.positionId);
+    console.log("position", position);
+    position.addEventListener("change", (e) => {
+      imgId.src = imagesPosition[e.target.value];
+    })
   });
 
   const positionLarge = document.getElementById(settings.largeLayout.positionId);
