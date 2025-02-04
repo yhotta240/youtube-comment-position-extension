@@ -1,6 +1,30 @@
 let isEnabled = false;
 let settings = {};
 
+const defaultSettings = {
+  largeLayout: {
+    positionId: "large-layout-position",
+    position: "large-position-leftside",
+    positionImgId: "large-image",
+    positionImage: "./images/large-layout-comments-secondary-left.png",
+    heightId: "large-height-comments",
+    height: 700,
+    optionId: "large-layout-option",
+    option: false,
+    positionPrefix: "large",
+  },
+  mediumLayout: {
+    positionId: "medium-layout-position",
+    position: "medium-position-default",
+    positionImgId: "medium-image",
+    positionImage: "./images/medium-layout-comments-default.png",
+    heightId: "medium-height-comments",
+    height: 500,
+    optionId: "medium-layout-option",
+    option: false,
+    positionPrefix: "medium",
+  }
+}
 const manifestData = chrome.runtime.getManifest();
 // Sampleツールの有効/無効を処理する関数
 const handleSampleTool = (isEnabled) => {
@@ -18,7 +42,7 @@ const handleSampleTool = (isEnabled) => {
 // 最初の読み込みまたはリロード後に実行する処理
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
   isEnabled = data.isEnabled || isEnabled;
-  settings = data.settings || settings;
+  settings = data.settings || defaultSettings;
   console.log("data", data.settings);
   handleSampleTool(isEnabled);
 });
@@ -26,7 +50,7 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
 // // ストレージの値が変更されたときに実行される処理
 chrome.storage.onChanged.addListener((changes) => {
   isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
-  settings = changes.settings ? changes.settings.newValue : settings;
+  settings = changes.settings ? changes.settings.newValue : defaultSettings;
   // handleSampleTool(isEnabled);
   popupLoad(settings);
 });
