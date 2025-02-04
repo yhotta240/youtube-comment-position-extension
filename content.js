@@ -29,11 +29,8 @@ const manifestData = chrome.runtime.getManifest();
 // Sampleツールの有効/無効を処理する関数
 const handleSampleTool = (isEnabled) => {
   if (isEnabled) {
-    console.log(`${manifestData.name} がONになりました`);
     observer.observe(document.body, { childList: true, subtree: true });
-    // removeCinematics();
   } else {
-    console.log(`${manifestData.name} がOFFになりました`);
     observer.disconnect();
   }
 };
@@ -43,7 +40,6 @@ const handleSampleTool = (isEnabled) => {
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
   isEnabled = data.isEnabled || isEnabled;
   settings = data.settings || defaultSettings;
-  console.log("data", data.settings);
   handleSampleTool(isEnabled);
 });
 
@@ -94,12 +90,12 @@ const observer = new MutationObserver(() => {
     isReloaded = true;
   } else {
     if (isLargeScreen && preRespWidth === 'medium') {
-      console.log("Switched to large screen layout");
+      // console.log("Switched to large screen layout");
       insertSecondary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
-      console.log("Switched to medium screen layout");
+      // console.log("Switched to medium screen layout");
       insertPrimary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
@@ -110,7 +106,7 @@ const observer = new MutationObserver(() => {
   const currentVideoId = url.searchParams.get("v");
 
   if (preUrl !== currentVideoId) {
-    console.log("URL changed!");
+    // console.log("URL changed!");
     removeCinematics();
     preUrl = currentVideoId;
   } else {
@@ -121,7 +117,7 @@ const observer = new MutationObserver(() => {
 });
 
 const handleFirstRender = (elements, isLargeScreen) => {
-  console.log("Custom tab is not present, rendering...");
+  // console.log("Custom tab is not present, rendering...");
 
   if (isLargeScreen) {
     console.log("large screen layout");
@@ -155,7 +151,6 @@ const insertPrimary = (elements) => {
       elements.below.appendChild(elements.related);
     }, 100);
   } else {
-    console.log("elements.related", elements.below, elements.related);
     elements.below.appendChild(comments);
     setTimeout(() => {
       // elements.below.appendChild(comments);
@@ -182,7 +177,6 @@ const styleComments = (comments, isDefaultPosition) => {
 
 const fixationPlayer = (elements, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
-  console.log('fixationPlayer', !isLargeDefaultPosition, isLargeDefaultOption, !isMediumDefaultPosition, isMediumDefaultOption);
   if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
     const player = elements.player;
     player.style.position = 'fixed';
@@ -203,16 +197,16 @@ const fixationPlayer = (elements, isLargeScreen) => {
 const unlockFixationPlayer = (element, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
   const elements = getElements();
-  console.log('unlockFixationPlayer', isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen, isMediumDefaultPosition, isMediumDefaultOption);
+  // console.log('unlockFixationPlayer', isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen, isMediumDefaultPosition, isMediumDefaultOption);
   if (!isLargeDefaultPosition && !isLargeDefaultOption && isLargeScreen) {
-    console.log('large layout unlockFixationPlayer', elements.below);
+    // console.log('large layout unlockFixationPlayer', elements.below);
     const player = elements.player;
     player.style.position = 'relative';
   }
   if (!isMediumDefaultPosition && !isMediumDefaultOption && !isLargeScreen) {
     const player = elements.player;
     player.style.position = 'relative';
-    console.log('medium layout unlockFixationPlayer');
+    // console.log('medium layout unlockFixationPlayer');
   }
 }
 
@@ -235,7 +229,6 @@ const handleResize = () => {
       elements.below.style.paddingTop = 0;
     }
 
-    // console.log(playerHeight, primaryInnerWidth, primaryInnerWidth * (9 / 16), window.innerWidth);
   }, 100);
 };
 
