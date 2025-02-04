@@ -21,7 +21,7 @@ const defaultSettings = {
     positionImgId: "large-image",
     positionImage: "./images/large-layout-comments-secondary-left.png",
     heightId: "large-height-comments",
-    height: 700,
+    height: '',
     optionId: "large-layout-option",
     option: false,
     positionPrefix: "large",
@@ -32,7 +32,7 @@ const defaultSettings = {
     positionImgId: "medium-image",
     positionImage: "./images/medium-layout-comments-default.png",
     heightId: "medium-height-comments",
-    height: 500,
+    height: '',
     optionId: "medium-layout-option",
     option: false,
     positionPrefix: "medium",
@@ -54,36 +54,38 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
     isEnabled = data.isEnabled || false;
     enabledElement.checked = isEnabled;
   }
-  console.log("data", data.settings);
   popupLoad(data.settings);
   messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
 });
 
 function popupLoad(data) {
-  const settings = data || defaultSettings;
-  console.log("settings", settings);
+  if (!data) {
+    data = defaultSettings;
+    chrome.storage.local.set({ settings: data });
+  };
+  const settings = data;
+
+  // console.log("settings", settings);
   ["largeLayout", "mediumLayout"].forEach((layout) => {
 
     ["height", "position"].forEach((prop) => {
       const key = settings[layout];
       const elem = document.getElementById(key[`${prop}Id`]);
+      if (!elem) return;
       elem.value = key[prop];
       elem.addEventListener("change", (event) => {
         key[prop] = event.target.value;
-        console.log("選択変更:", event.target.value, settings);
-        chrome.storage.local.set({ settings }, () => console.log("設定を保存しました", settings));
+        chrome.storage.local.set({ settings });
       });
     });
   });
 
   ["largeLayout", "mediumLayout"].forEach((layout) => {
     const layoutKey = settings[layout];
-    const positionImage = layoutKey.positionImage;
     const imgId = document.getElementById(layoutKey.positionImgId);
     imgId.src = imagesPosition[layoutKey.position];
-    console.log(layoutKey, positionImage, imgId, imagesPosition[layoutKey.position]);
+    // console.log(layoutKey, positionImage, imgId, imagesPosition[layoutKey.position]);
     const position = document.getElementById(layoutKey.positionId);
-    console.log("position", position);
     position.addEventListener("change", (e) => {
       imgId.src = imagesPosition[e.target.value];
     })
@@ -106,8 +108,8 @@ function popupLoad(data) {
   });
   optionLarge.addEventListener("change", () => {
     settings.largeLayout.option = optionLarge.checked;
-    console.log("選択変更:", optionLarge.checked, settings);
-    chrome.storage.local.set({ settings }, () => console.log("設定を保存しましたぞ", settings));
+    // console.log("選択変更:", optionLarge.checked, settings);
+    chrome.storage.local.set({ settings });
   });
 
   const positionMedium = document.getElementById(settings.mediumLayout.positionId);
@@ -127,8 +129,8 @@ function popupLoad(data) {
   });
   optionMedium.addEventListener("change", () => {
     settings.mediumLayout.option = optionMedium.checked;
-    console.log("選択変更:", optionMedium.checked, settings);
-    chrome.storage.local.set({ settings }, () => console.log("設定を保存しました", settings));
+    // console.log("選択変更:", optionMedium.checked, settings);
+    chrome.storage.local.set({ settings });
   });
 
 }
@@ -192,20 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (githubLink) clickURL(githubLink);
 
 });
-
-
-// 設定をストレージに保存する関数
-function saveSettings(datetime, message, value) {
-  const settings = {
-    sampleValue: value,
-  };
-
-  // ストレージに設定を保存し，保存完了後にメッセージを出力
-  chrome.storage.local.set({ settings: settings }, () => {
-    messageOutput(datetime, message);
-  });
-}
-
 
 // popup.html内のリンクを新しいタブで開けるように設定する関数
 function clickURL(link) {
