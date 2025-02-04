@@ -6,6 +6,29 @@ const messagePanel = document.getElementById('messagePanel');
 const messageDiv = document.getElementById('message');
 const manifestData = chrome.runtime.getManifest();
 
+const defaultSettings = {
+  largeLayout: {
+    positionId: "large-layout-position",
+    position: "large-position-leftside",
+    // positionImage: "../icons/comments.png",
+    heightId: "large-height-comments",
+    height: 700,
+    optionId: "large-layout-option",
+    option: false,
+    positionPrefix: "large",
+  },
+  mediumLayout: {
+    positionId: "medium-layout-position",
+    position: "medium-position-default",
+    // positionImage: "../icons/comments.png",
+    heightId: "medium-height-comments",
+    height: 500,
+    optionId: "medium-layout-option",
+    option: false,
+    positionPrefix: "medium",
+  }
+}
+
 // チェックボックス（トグルボタン）の状態が変更されたとき，ツールの有効/無効状態を更新
 enabledElement.addEventListener('change', (event) => {
   isEnabled = event.target.checked;
@@ -21,12 +44,75 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
     isEnabled = data.isEnabled || false;
     enabledElement.checked = isEnabled;
   }
+  console.log("data", data.settings);
+  popupLoad(data.settings);
   messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
 });
 
+function popupLoad(data) {
+  const settings = data || defaultSettings;
+  console.log("settings", settings);
+
+  ["largeLayout", "mediumLayout"].forEach((layout) => {
+    ["height", "position"].forEach((prop) => {
+      const key = settings[layout];
+      const elem = document.getElementById(key[`${prop}Id`]);
+      elem.value = key[prop];
+      elem.addEventListener("change", (event) => {
+        key[prop] = event.target.value;
+        console.log("選択変更:", event.target.value, settings);
+        chrome.storage.local.set({ settings }, () => console.log("設定を保存しました", settings));
+      });
+    });
+  });
+
+  const positionLarge = document.getElementById(settings.largeLayout.positionId);
+  const optionLarge = document.getElementById(settings.largeLayout.optionId);
+  const heightLarge = document.getElementById(settings.largeLayout.heightId);
+
+  const isLargeDefault = settings.largeLayout.position === "large-position-default";
+  optionLarge.checked = settings.largeLayout.option;
+  optionLarge.disabled = isLargeDefault;
+  heightLarge.disabled = isLargeDefault;
+  heightLarge.value = isLargeDefault ? '' : settings.largeLayout.height;
+  positionLarge.addEventListener("change", () => {
+    const isLargeDefault = settings.largeLayout.position === "large-position-default";
+    optionLarge.disabled = isLargeDefault;
+    heightLarge.disabled = isLargeDefault;
+    heightLarge.value = isLargeDefault ? '' : settings.largeLayout.height;
+  });
+  optionLarge.addEventListener("change", () => {
+    settings.largeLayout.option = optionLarge.checked;
+    console.log("選択変更:", optionLarge.checked, settings);
+    chrome.storage.local.set({ settings }, () => console.log("設定を保存しましたぞ", settings));
+  });
+
+  const positionMedium = document.getElementById(settings.mediumLayout.positionId);
+  const optionMedium = document.getElementById(settings.mediumLayout.optionId);
+  const heightMedium = document.getElementById(settings.mediumLayout.heightId);
+
+  const isMediumDefault = settings.mediumLayout.position === "medium-position-default";
+  optionMedium.checked = settings.mediumLayout.option;
+  optionMedium.disabled = isMediumDefault;
+  heightMedium.disabled = isMediumDefault;
+  heightMedium.value = isMediumDefault ? '' : settings.mediumLayout.height;
+  positionMedium.addEventListener("change", () => {
+    const isMediumDefault = settings.mediumLayout.position === "medium-position-default";
+    optionMedium.disabled = isMediumDefault;
+    heightMedium.disabled = isMediumDefault;
+    heightMedium.value = isMediumDefault ? '' : settings.mediumLayout.height;
+  });
+  optionMedium.addEventListener("change", () => {
+    settings.mediumLayout.option = optionMedium.checked;
+    console.log("選択変更:", optionMedium.checked, settings);
+    chrome.storage.local.set({ settings }, () => console.log("設定を保存しました", settings));
+  });
+
+}
 
 // DOMの読み込み完了を監視し，完了後に実行
 document.addEventListener('DOMContentLoaded', function () {
+
 
   const title = document.getElementById('title');
   title.textContent = `${manifestData.name}`;
