@@ -44,12 +44,20 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
 });
 
 // // ストレージの値が変更されたときに実行される処理
-chrome.storage.onChanged.addListener((changes) => {
-  isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
-  settings = changes.settings ? changes.settings.newValue : defaultSettings;
-  // handleSampleTool(isEnabled);
-  popupLoad(settings);
-});
+// chrome.storage.onChanged.addListener((changes) => {
+//   isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
+//   settings = changes.settings ? changes.settings.newValue : defaultSettings;
+// handleSampleTool(isEnabled);
+// });
+
+const pageManager = () => {
+  const pageManager = document.querySelectorAll("#page-manager > ytd-watch-flexy");
+  const isTwoColumn = pageManager[0].attributes["default-two-column-layout"];
+  const isTwoColumns = pageManager[0].attributes["is-two-columns_"]
+  // const isThreeColumns = pageManager[0].attributes.length
+  // console.log("pageManager", isTwoColumn, isTwoColumns, isThreeColumns);
+  return !(isTwoColumn === undefined) && !(isTwoColumns === undefined);
+};
 
 
 const getElements = () => ({
@@ -83,19 +91,20 @@ let preUrl = null;
 const observer = new MutationObserver(() => {
   const elements = getElements();
   if (!elements.primary || !elements.below || !elements.secondary || !elements.secondaryInner) return;
-  const isLargeScreen = window.innerWidth >= 1017;
+  const isLargeScreen = pageManager();
 
   if (!isReloaded) {
     handleFirstRender(elements, isLargeScreen);
+
     isReloaded = true;
   } else {
     if (isLargeScreen && preRespWidth === 'medium') {
-      // console.log("Switched to large screen layout");
+      console.log("Switched to large screen layout");
       insertSecondary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
-      // console.log("Switched to medium screen layout");
+      console.log("Switched to medium screen layout");
       insertPrimary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
@@ -177,18 +186,22 @@ const styleComments = (comments, isDefaultPosition) => {
 
 const fixationPlayer = (elements, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
+  console.log('fixationPlayer', !isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen);
   if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
     const player = elements.player;
     player.style.position = 'fixed';
     player.style.width = '100%'; // 親要素の幅に合わせる
     player.style.zIndex = '999';
+    handleResize();
     window.addEventListener('resize', handleResize);
   }
+  console.log('fixationPlayer', !isMediumDefaultPosition, isMediumDefaultOption, !isLargeScreen);
   if (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen) {
     const player = elements.player;
     player.style.position = 'fixed';
     player.style.width = '100%'; // 親要素の幅に合わせる
     player.style.zIndex = '999';
+    handleResize();
     window.addEventListener('resize', handleResize);
   }
 
@@ -197,13 +210,14 @@ const fixationPlayer = (elements, isLargeScreen) => {
 const unlockFixationPlayer = (element, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
   const elements = getElements();
-  // console.log('unlockFixationPlayer', isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen, isMediumDefaultPosition, isMediumDefaultOption);
-  if (!isLargeDefaultPosition && !isLargeDefaultOption && isLargeScreen) {
+  console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen);
+  if ((isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen) {
     // console.log('large layout unlockFixationPlayer', elements.below);
     const player = elements.player;
     player.style.position = 'relative';
   }
-  if (!isMediumDefaultPosition && !isMediumDefaultOption && !isLargeScreen) {
+  console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen);
+  if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
     const player = elements.player;
     player.style.position = 'relative';
     // console.log('medium layout unlockFixationPlayer');
@@ -213,19 +227,31 @@ const unlockFixationPlayer = (element, isLargeScreen) => {
 const handleResize = () => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
   setTimeout(() => {
-    const isLargeScreen = window.innerWidth >= 1017;
+    const isLargeScreen = pageManager();
     const elements = getElements();
     if (!elements.primary) return;
     const primaryInner = elements.primaryInner;
     const primaryInnerWidth = primaryInner.offsetWidth;
+    const primaryInnerAll = document.querySelectorAll("#primary-inner.style-scope.ytd-watch-flexy");
+    const primaryInnerWidth2 = primaryInner.clientWidth;
+    console.log("primaryInnerWidth", primaryInnerWidth, primaryInnerAll, primaryInnerWidth2);
+    console.log("isLargeDefaultPosition", isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen);
+    console.log("isMediumDefaultPosition", isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen);
+    const element = document.querySelector("ytd-watch-flexy[flexy]");
+
+    const styles = getComputedStyle(element);
+    const primaryWidth = styles.getPropertyValue("--ytd-watch-flexy-structured-description-max-height").trim();
+    const widthRatio = styles.getPropertyValue("--ytd-watch-flexy-width-ratio").trim();
+    const heightRatio = styles.getPropertyValue("--ytd-watch-flexy-height-ratio").trim();
+    console.log("widthRatio", styles, widthRatio, heightRatio, primaryWidth);
     elements.player.style.maxWidth = primaryInnerWidth + 'px'; // 親要素の幅に合わせる
     if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
-      elements.below.style.paddingTop = `${primaryInnerWidth * (9 / 16)}px`;
+      elements.below.style.paddingTop = `${primaryInnerWidth * (heightRatio / widthRatio)}px`;
     } else if (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen) {
-      elements.below.style.paddingTop = `${primaryInnerWidth * (9 / 16)}px`;
-    } else if (!isLargeDefaultPosition && !isLargeDefaultOption && isLargeScreen) {
+      elements.below.style.paddingTop = `${primaryInnerWidth * (heightRatio / widthRatio)}px`;
+    } else if ((isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen) {
       elements.below.style.paddingTop = 0;
-    } else if (!isMediumDefaultPosition && !isMediumDefaultOption && !isLargeScreen) {
+    } else if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
       elements.below.style.paddingTop = 0;
     }
 
@@ -237,14 +263,14 @@ const height = () => {
   const headerHeight = header ? header.offsetHeight : 0;
   const windowHeight = window.innerHeight;
   // console.log(headerHeight, windowHeight, windowHeight - headerHeight - 155);
-  const isLargeScreen = window.innerWidth >= 1017;
+  const isLargeScreen = pageManager();
   let height = null;
   if (isLargeScreen) {
     height = settingsLayout().largeHeight;
     settings.largeLayout.height = height ? height : windowHeight - headerHeight - 155;
   } else {
     height = settingsLayout().mediumHeight;
-    settings.mediumLayout.height = height ? height : windowHeight - headerHeight - 255;
+    settings.mediumLayout.height = height ? height : windowHeight - headerHeight - 205;
   }
   chrome.storage.local.set({ settings: settings });
   return height ? height : windowHeight - headerHeight - 155;
