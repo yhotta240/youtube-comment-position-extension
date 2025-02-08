@@ -40,6 +40,7 @@ const handleSampleTool = (isEnabled) => {
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
   isEnabled = data.isEnabled || isEnabled;
   settings = data.settings || defaultSettings;
+  // console.log("settings", settings);
   handleSampleTool(isEnabled);
 });
 
@@ -78,6 +79,7 @@ const settingsLayout = () => (
     isLargeDefaultOption: settings.largeLayout.option,
     isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
     isMediumDefaultOption: settings.mediumLayout.option,
+    mediumLayoutPosition: settings.mediumLayout.position,
     largeHeight: settings.largeLayout.height,
     mediumHeight: settings.mediumLayout.height
   }
@@ -99,12 +101,12 @@ const observer = new MutationObserver(() => {
     isReloaded = true;
   } else {
     if (isLargeScreen && preRespWidth === 'medium') {
-      console.log("Switched to large screen layout");
+      // console.log("Switched to large screen layout");
       insertSecondary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
-      console.log("Switched to medium screen layout");
+      // console.log("Switched to medium screen layout");
       insertPrimary(elements);
       unlockFixationPlayer(elements, isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
@@ -129,12 +131,12 @@ const handleFirstRender = (elements, isLargeScreen) => {
   // console.log("Custom tab is not present, rendering...");
 
   if (isLargeScreen) {
-    console.log("large screen layout");
+    // console.log("large screen layout");
     insertSecondary(elements);
     // unlockFixationPlayer(elements, isLargeScreen);
     fixationPlayer(elements, isLargeScreen);
   } else if (!isLargeScreen) {
-    console.log("medium screen layout");
+    // console.log("medium screen layout");
     insertPrimary(elements);
     // unlockFixationPlayer(elements, isLargeScreen);
     fixationPlayer(elements, isLargeScreen);
@@ -151,21 +153,26 @@ const insertSecondary = (elements) => {
 };
 
 const insertPrimary = (elements) => {
-  const { isMediumDefaultPosition } = settingsLayout();
+  const { isMediumDefaultPosition, mediumLayoutPosition } = settingsLayout();
   const comments = elements.comments;
   styleComments(comments, isMediumDefaultPosition);
-  if (!isMediumDefaultPosition) {
+
+  if (isMediumDefaultPosition) {
     elements.below.appendChild(comments);
     setTimeout(() => {
-      elements.below.appendChild(elements.related);
-    }, 100);
-  } else {
-    elements.below.appendChild(comments);
-    setTimeout(() => {
-      // elements.below.appendChild(comments);
       elements.below.insertBefore(elements.related, comments);
     }, 100);
+    return;
   }
+
+  if (mediumLayoutPosition === "medium-position-underplayer") {
+    elements.below.insertBefore(comments, elements.below.firstChild);
+  } else if (mediumLayoutPosition === "medium-position-undermetadata") {
+    elements.below.appendChild(comments);
+  }
+  setTimeout(() => {
+    elements.below.appendChild(elements.related);
+  }, 100);
 };
 
 const styleComments = (comments, isDefaultPosition) => {
@@ -186,7 +193,7 @@ const styleComments = (comments, isDefaultPosition) => {
 
 const fixationPlayer = (elements, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
-  console.log('fixationPlayer', !isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen);
+  // console.log('fixationPlayer', !isLargeDefaultPosition, isLargeDefaultOption, isLargeScreen);
   if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
     const player = elements.player;
     player.style.position = 'fixed';
@@ -195,7 +202,7 @@ const fixationPlayer = (elements, isLargeScreen) => {
     handleResize();
     window.addEventListener('resize', handleResize);
   }
-  console.log('fixationPlayer', !isMediumDefaultPosition, isMediumDefaultOption, !isLargeScreen);
+  // console.log('fixationPlayer', !isMediumDefaultPosition, isMediumDefaultOption, !isLargeScreen);
   if (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen) {
     const player = elements.player;
     player.style.position = 'fixed';
@@ -210,13 +217,13 @@ const fixationPlayer = (elements, isLargeScreen) => {
 const unlockFixationPlayer = (element, isLargeScreen) => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
   const elements = getElements();
-  console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen);
+  // console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen);
   if ((isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen) {
     // console.log('large layout unlockFixationPlayer', elements.below);
     const player = elements.player;
     player.style.position = 'relative';
   }
-  console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen);
+  // console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen);
   if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
     const player = elements.player;
     player.style.position = 'relative';
@@ -231,29 +238,38 @@ const handleResize = () => {
     const elements = getElements();
     if (!elements.primary) return;
     const primaryInner = elements.primaryInner;
+    const primary = elements.primary;
+
     const primaryInnerWidth = primaryInner.offsetWidth;
+    const playerContainerOuter = elements.playerContainerOuter;
+    const playerContainerOuterWidth = playerContainerOuter.offsetWidth;
+
     const primaryInnerAll = document.querySelectorAll("#primary-inner.style-scope.ytd-watch-flexy");
     const primaryInnerWidth2 = primaryInner.clientWidth;
-    console.log("primaryInnerWidth", primaryInnerWidth, primaryInnerAll, primaryInnerWidth2);
-    console.log("isLargeDefaultPosition", isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen);
-    console.log("isMediumDefaultPosition", isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen);
-    const element = document.querySelector("ytd-watch-flexy[flexy]");
+    // console.log("primaryInnerWidth", primaryInnerWidth, primaryInnerAll, primaryInnerWidth2, playerContainerOuterWidth);
+    // console.log("isLargeDefaultPosition", isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen);
+    // console.log("isMediumDefaultPosition", isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen);
 
+    const element = document.querySelector("ytd-watch-flexy[flexy]");
     const styles = getComputedStyle(element);
     const widthRatio = styles.getPropertyValue("--ytd-watch-flexy-width-ratio").trim();
     const heightRatio = styles.getPropertyValue("--ytd-watch-flexy-height-ratio").trim();
-    console.log("widthRatio", styles, widthRatio, heightRatio, primaryWidth);
+    // const widthRatio = 16;
+    // const heightRatio = 9;
+    // console.log("widthRatio", widthRatio, heightRatio);
     elements.player.style.maxWidth = primaryInnerWidth + 'px'; // 親要素の幅に合わせる
+
     if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
       elements.below.style.paddingTop = `${primaryInnerWidth * (heightRatio / widthRatio)}px`;
+      primary.style.maxWidth = 'none';
     } else if (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen) {
       elements.below.style.paddingTop = `${primaryInnerWidth * (heightRatio / widthRatio)}px`;
+      primary.style.maxWidth = 'none';
     } else if ((isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen) {
       elements.below.style.paddingTop = 0;
     } else if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
       elements.below.style.paddingTop = 0;
     }
-    ytd - watch - flexy[flexy]
   }, 100);
 };
 
