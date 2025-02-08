@@ -140,11 +140,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   const title = document.getElementById('title');
-  title.textContent = `${manifestData.name}`;
+  title.textContent = `YouTube コメントポジション`;
   const titleHeader = document.getElementById('title-header');
-  titleHeader.textContent = `${manifestData.name}`;
+  titleHeader.textContent = `YouTube コメントポジション`;
   const enabledLabel = document.getElementById('enabled-label');
-  enabledLabel.textContent = `${manifestData.name} を有効にする`;
+  enabledLabel.textContent = `YouTube コメントポジションを有効にする`;
 
   panelButton.addEventListener('click', function () {
     const panelHeight = '170px';
