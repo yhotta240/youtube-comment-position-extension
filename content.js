@@ -240,7 +240,6 @@ const handleResize = () => {
     const element = document.querySelector("ytd-watch-flexy[flexy]");
 
     const styles = getComputedStyle(element);
-    const primaryWidth = styles.getPropertyValue("--ytd-watch-flexy-structured-description-max-height").trim();
     const widthRatio = styles.getPropertyValue("--ytd-watch-flexy-width-ratio").trim();
     const heightRatio = styles.getPropertyValue("--ytd-watch-flexy-height-ratio").trim();
     console.log("widthRatio", styles, widthRatio, heightRatio, primaryWidth);
@@ -254,7 +253,7 @@ const handleResize = () => {
     } else if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
       elements.below.style.paddingTop = 0;
     }
-
+    ytd - watch - flexy[flexy]
   }, 100);
 };
 
