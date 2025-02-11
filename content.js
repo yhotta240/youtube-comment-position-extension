@@ -243,7 +243,6 @@ const handleResize = () => {
     const primary = elements.primary;
 
     const primaryInnerWidth = primaryInner.offsetWidth;
-    console.log("primaryInnerWidth", primaryInnerWidth);
     if (primaryInnerWidth === 0) return;
     clearInterval(interval);
 
