@@ -118,6 +118,9 @@ const observer = new MutationObserver(() => {
 
   if (preUrl !== currentVideoId) {
     // console.log("URL changed!");
+    // setTimeout(() => {
+    handleFirstRender(elements, isLargeScreen);
+    // }, 100);
     removeCinematics();
     preUrl = currentVideoId;
   } else {
@@ -133,12 +136,10 @@ const handleFirstRender = (elements, isLargeScreen) => {
   if (isLargeScreen) {
     // console.log("large screen layout");
     insertSecondary(elements);
-    // unlockFixationPlayer(elements, isLargeScreen);
     fixationPlayer(elements, isLargeScreen);
   } else if (!isLargeScreen) {
     // console.log("medium screen layout");
     insertPrimary(elements);
-    // unlockFixationPlayer(elements, isLargeScreen);
     fixationPlayer(elements, isLargeScreen);
   }
 };
@@ -233,20 +234,22 @@ const unlockFixationPlayer = (element, isLargeScreen) => {
 
 const handleResize = () => {
   const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
-  setTimeout(() => {
+  const interval = setInterval(() => {
     const isLargeScreen = pageManager();
     const elements = getElements();
     if (!elements.primary) return;
     const primaryInner = elements.primaryInner;
+    // console.log("primaryInner", primaryInner);
     const primary = elements.primary;
 
     const primaryInnerWidth = primaryInner.offsetWidth;
+    console.log("primaryInnerWidth", primaryInnerWidth);
+    if (primaryInnerWidth === 0) return;
+    clearInterval(interval);
+
     const playerContainerOuter = elements.playerContainerOuter;
     const playerContainerOuterWidth = playerContainerOuter.offsetWidth;
-
-    const primaryInnerAll = document.querySelectorAll("#primary-inner.style-scope.ytd-watch-flexy");
-    const primaryInnerWidth2 = primaryInner.clientWidth;
-    // console.log("primaryInnerWidth", primaryInnerWidth, primaryInnerAll, primaryInnerWidth2, playerContainerOuterWidth);
+    // console.log("primaryInnerWidth", primaryInnerWidth, playerContainerOuterWidth);
     // console.log("isLargeDefaultPosition", isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen);
     // console.log("isMediumDefaultPosition", isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen);
 
@@ -260,6 +263,7 @@ const handleResize = () => {
     elements.player.style.maxWidth = primaryInnerWidth + 'px'; // 親要素の幅に合わせる
 
     if (!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) {
+      // console.log('large screen layout handleResize', elements.below);
       elements.below.style.paddingTop = `${primaryInnerWidth * (heightRatio / widthRatio)}px`;
       primary.style.maxWidth = 'none';
     } else if (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen) {
