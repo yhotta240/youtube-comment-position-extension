@@ -118,14 +118,12 @@ const observer = new MutationObserver(() => {
 
   if (preUrl !== currentVideoId) {
     // console.log("URL changed!");
-    // setTimeout(() => {
     handleFirstRender(elements, isLargeScreen);
-    // }, 100);
-    removeCinematics();
     preUrl = currentVideoId;
   } else {
     preUrl = currentVideoId;
   }
+  removeCinematics();
 
   preRespWidth = isLargeScreen ? 'large' : 'medium';
 });
