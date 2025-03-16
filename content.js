@@ -71,7 +71,8 @@ const getElements = () => ({
   secondaryInner: document.querySelector('#secondary-inner.style-scope.ytd-watch-flexy'),
   comments: document.querySelector('#comments.style-scope.ytd-watch-flexy'),
   related: document.querySelector('#related.style-scope.ytd-watch-flexy'),
-  cinematics: document.querySelector("#cinematics > div > div")
+  cinematics: document.querySelector("#cinematics > div > div"),
+  metaData: document.querySelector("#below > ytd-watch-metadata")
 });
 const settingsLayout = () => (
   {
@@ -79,6 +80,7 @@ const settingsLayout = () => (
     isLargeDefaultOption: settings.largeLayout.option,
     isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
     isMediumDefaultOption: settings.mediumLayout.option,
+    largeLayoutPosition: settings.largeLayout.position,
     mediumLayoutPosition: settings.mediumLayout.position,
     largeHeight: settings.largeLayout.height,
     mediumHeight: settings.mediumLayout.height
@@ -143,17 +145,32 @@ const handleFirstRender = (elements, isLargeScreen) => {
 };
 
 const insertSecondary = (elements) => {
-  const { isLargeDefaultPosition } = settingsLayout();
+  const { isLargeDefaultPosition, largeLayoutPosition } = settingsLayout();
   const comments = elements.comments;
+  const related = elements.related;
   styleComments(comments, isLargeDefaultPosition);
   if (!isLargeDefaultPosition) {
-    elements.secondaryInner.insertBefore(comments, elements.secondaryInner.firstChild);
+    if (largeLayoutPosition === "large-position-leftside") {
+      elements.secondaryInner.insertBefore(comments, elements.secondaryInner.firstChild);
+    }
+    else if (largeLayoutPosition === "large-position-leftside-bottom") {
+      elements.secondaryInner.insertBefore(comments, related);
+    }
+    else if (largeLayoutPosition === "large-position-switch") {
+      elements.secondaryInner.appendChild(comments);
+      setTimeout(() => {
+        elements.below.appendChild(related);
+      }, 100);
+      
+    }
   }
+
 };
 
 const insertPrimary = (elements) => {
   const { isMediumDefaultPosition, mediumLayoutPosition } = settingsLayout();
   const comments = elements.comments;
+  const metaData = elements.metaData;
   styleComments(comments, isMediumDefaultPosition);
 
   if (isMediumDefaultPosition) {
@@ -165,7 +182,8 @@ const insertPrimary = (elements) => {
   }
 
   if (mediumLayoutPosition === "medium-position-underplayer") {
-    elements.below.insertBefore(comments, elements.below.firstChild);
+    // elements.below.insertBefore(comments, elements.below.firstChild);
+    elements.below.insertBefore(comments, metaData);
   } else if (mediumLayoutPosition === "medium-position-undermetadata") {
     elements.below.appendChild(comments);
   }
