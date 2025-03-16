@@ -9,6 +9,8 @@ const manifestData = chrome.runtime.getManifest();
 const imagesPosition = {
   "large-position-default": "./images/large-layout-comments-default.png",
   "large-position-leftside": "./images/large-layout-comments-secondary.png",
+  "large-position-leftside-bottom":"./images/large-layout-comments-secondary-bottom.png",
+  "large-position-switch": "./images/large-layout-comments-related-switch.png",
   "medium-position-default": "./images/medium-layout-comments-default.png",
   "medium-position-undermetadata": "./images/medium-layout-comments-under-metadata.png",
   "medium-position-underplayer": "./images/medium-layout-comments-under-player.png",
