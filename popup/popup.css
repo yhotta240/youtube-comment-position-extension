@@ -2,15 +2,18 @@ html {
   font-size: 0.8rem;
 }
 
-html,
+
 body {
   width: 26rem;
   min-width: 26rem;
   margin: 0;
 }
 
-#messagePanel {
+#panel {
   height: 0;
   overflow: hidden;
   transition: height 0.3s ease;
+}
+#panel.no-transition {
+  transition: none !important;
 }
