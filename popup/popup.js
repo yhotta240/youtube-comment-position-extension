@@ -144,6 +144,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('extension-version').textContent = `${manifestData.version}`;
   document.getElementById('extension-description').textContent = `${manifestData.description}`;
   chrome.permissions.getAll((result) => {
+    document.getElementById('permission-info').textContent = `${result.permissions[0]}`;
+
     let siteAccess;
     if (result.origins.length > 0) {
       if (result.origins.includes("<all_urls>")) {

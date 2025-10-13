@@ -9,9 +9,9 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 
-<body class="container pb-3 p-2 ">
+<body class="container-md pb-3 p-2">
 
-  <div id="header" class="bg-light w-100">
+  <div id="header" class="w-100">
     <div class="d-flex justify-content-between p-1 align-items-center">
       <div class="d-flex justify-content-center align-items-center">
         <img src="../icons/icon.png" class="my-auto mx-2" alt="message clear button" height="24">
@@ -44,13 +44,13 @@
       <a class="nav-link active p-1" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab"
         aria-controls="settings " aria-selected="true">設定</a>
     </li>
-    <li class="nav-item" role="presentation">
-      <a class="nav-link p-1" id="description-tab" data-bs-toggle="tab" href="#description" role="tab"
-        aria-controls="description" aria-selected="false">概要</a>
-    </li>
     <li class="nav-item " role="presentation">
       <a class="nav-link p-1" id="document-tab" data-bs-toggle="tab" href="#document" role="tab"
         aria-controls="document" aria-selected="false">ドキュメント</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1 p-md-2" id="version-tab" data-bs-toggle="tab" href="#version" role="tab"
+        aria-controls="version" aria-selected="true">バージョン</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link  p-1" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
@@ -69,7 +69,11 @@
           <!-- Large レイアウト:  -->
           <div class="fs-5 fw-bold">Large レイアウト: </div>
 
-          <img id="large-image" src="" alt="large-image" height="200" class="pt-2 mx-auto d-block">
+          <div class="mx-auto d-block rounded-4 border border-dark-subtle"
+            style="height: 200px; width: fit-content; overflow: hidden;">
+            <img src="" id="large-image" alt="large-image"
+              style="height: 100%; object-fit: cover; transform: scale(1.05);">
+          </div>
 
           <div class="d-flex align-items-center justify-content-between my-3">
             <label for="large-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
@@ -88,12 +92,12 @@
             </select>
           </div>
 
-          <div class="form-check ">
+          <div class="form-check mt-3">
             <input class="form-check-input large-layout-option" type="checkbox" data-id="stickyPlayer" value=""
               id="large-layout-sticky-player-option">
             <label class="form-check-label text-nowrap" for="large-layout-sticky-player-option">
               スクロール時，動画プレイヤーを固定する（オプション）
-            </label>
+            </label><br>
             <input class="form-check-input large-layout-option" type="checkbox" data-id="stickyComments" value=""
               id="large-layout-sticky-comments-option">
             <label class="form-check-label text-nowrap" for="large-layout-sticky-comments-option">
@@ -106,7 +110,11 @@
         <li class="list-group-item">
           <div class="fs-5 fw-bold">Medium レイアウト:</div>
 
-          <img id="medium-image" src="" alt="medium-image" height="200" class="pt-2 mx-auto d-block">
+          <div class="mx-auto d-block rounded-4 border border-dark-subtle"
+            style="height: 200px; width: fit-content; overflow: hidden;">
+            <img src="" id="medium-image" alt="medium-image"
+              style="height: 100%; object-fit: cover; transform: scale(1.05);">
+          </div>
 
           <div class="d-flex align-items-center justify-content-between my-3">
             <label for="medium-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
@@ -124,12 +132,12 @@
             </select>
           </div>
 
-          <div class="form-check">
+          <div class="form-check mt-3">
             <input class="form-check-input medium-layout-option" type="checkbox" data-id="stickyPlayer" value=""
               id="medium-layout-sticky-player-option">
             <label class="form-check-label text-nowrap" for="medium-layout-sticky-player-option">
               スクロール時，動画プレイヤーを固定する（オプション）
-            </label>
+            </label><br>
             <input class="form-check-input medium-layout-option" type="checkbox" data-id="stickyComments" value=""
               id="medium-layout-sticky-comments-option">
             <label class="form-check-label text-nowrap" for="medium-layout-sticky-comments-option">
@@ -143,86 +151,54 @@
       </ul>
     </div>
 
-    <!-- 概要 -->
-    <div class="tab-pane fade mt-2 mx-2" id="description" role="tabpanel" style="margin-bottom: 200px;"
-      aria-labelledby="description-tab">
-      <div class="p-2">
-        <h5>概要</h5>
-        <p>YouTube のコメント欄の位置を変える拡張機能です．</p>
-
-        <p class="my-1 fw-bold">説明</p>
-        <p>この拡張機能は，YouTube のコメント欄の位置を自由に変更できるようにするものです．通常，YouTube
-          のコメント欄は動画のメタデータ（タイトルや再生回数，概要欄など）の下に表示されますが，本拡張機能を使用すると，コメント欄を動画プレイヤーの横や直下に表示することができます．
-        </p>
-        <p>「コメントを見ながら動画を楽しみたい」という方におすすめの拡張機能です．</p>
-
-        <p class="my-1 fw-bold">拡張機能の主な特徴:</p>
-        <ul>
-          <li>コメント欄を動画の横（サイドバー）に配置</li>
-          <li>サイドバーだけでなく，動画の直下や動画メタデータの下にも配置可能</li>
-          <li>コメントを見ながら快適に動画を視聴可能</li>
-          <li>画面サイズに応じて最適なコメント欄のレイアウトを適用</li>
-        </ul>
-
-        <p class="my-1 fw-bold">仕様</p>
-        <ul>
-          <li><strong>Large レイアウト：</strong>横幅が 1017px 以上の場合，コメント欄は動画の横に配置できます．</li>
-          <li><strong>Medium レイアウト：</strong>横幅が 1017px 未満の場合，コメント欄は動画の下，または動画のメタデータの下に配置できます．</li>
-        </ul>
-
-      </div>
-    </div>
-
     <!-- ドキュメント -->
     <div class="tab-pane fade mt-2 mx-2" id="document" role="tabpanel" style="margin-bottom: 200px;"
       aria-labelledby="document-tab">
       <div class="accordion" id="accordion-word">
+        <!-- 概要 -->
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-              data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-              用語集
+              data-bs-target="#docs-overview" aria-expanded="true" aria-controls="docs-overview">
+              概要
             </button>
           </h2>
-          <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-            <div class="accordion-body p-1">
+          <div id="docs-overview" class="accordion-collapse collapse" data-bs-parent="#accordion-word">
+            <div class="accordion-body p-3">
+              <h5>概要</h5>
+              <p>YouTube のコメント欄の位置を変える拡張機能です．</p>
+
+              <p class="my-1 fw-bold">説明</p>
+              <p>この拡張機能は，YouTube のコメント欄の位置を自由に変更できるようにするものです．通常，YouTube
+                のコメント欄は動画のメタデータ（タイトルや再生回数，概要欄など）の下に表示されますが，本拡張機能を使用すると，コメント欄を動画プレイヤーの横や直下に表示することができます．
+              </p>
+              <p>「コメントを見ながら動画を楽しみたい」という方におすすめの拡張機能です．</p>
+
+              <p class="my-1 fw-bold">拡張機能の主な特徴:</p>
               <ul>
-                <li class="mb-1">
-                  <div class="fw-bold">コメント欄：comments</div>
-                  YouTubeの動画ページにおいて，視聴者が動画に対する意見や感想を投稿できるエリア．デフォルトでは動画の下に表示される．
-                </li>
-                <li class="mb-1">
-                  <div class="fw-bold">サイドバー：secondary</div>
-                  画面の横（右側）に表示されるサブエリア（セカンダリエリアとも呼ばれる）で，通常，メインコンテンツの隣に位置する．拡張機能では，コメント欄をこの位置に表示できる．
-                </li>
-                <li class="mb-1">
-                  <div class="fw-bold">Large レイアウト：</div>
-                  ウィンドウの横幅が1017px ~ 1020px 以上の状態．サイドバーが表示される．
-                </li>
-                <li class="mb-1">
-                  <div class="fw-bold">Medium レイアウト：</div>
-                  ウィンドウの横幅が1017px ~ 1020px 未満の状態．サイドバーが表示されない．
-                </li>
-                <li class="mb-1">
-                  <div class="fw-bold">動画プレイヤー：player</div>
-                  動画の再生を担当するインターフェースやコンポーネント．YouTubeのページでは，動画を再生するためのボタン，音量調整，進行状況バー，再生停止ボタンなどが含まれたUIを指す．
-                </li>
-                <li class="mb-1">
-                  <div class="fw-bold">動画メタデータ：metadata</div>
-                  動画に関連する情報や属性のこと．YouTubeでは，タイトル，チャネル名，評価（高評価・低評価），概要欄，公開日，再生回数などが動画メタデータに含まれる．
-                </li>
+                <li>コメント欄を動画の横（サイドバー）に配置</li>
+                <li>サイドバーだけでなく，動画の直下や動画メタデータの下にも配置可能</li>
+                <li>コメントを見ながら快適に動画を視聴可能</li>
+                <li>画面サイズに応じて最適なコメント欄のレイアウトを適用</li>
+              </ul>
+
+              <p class="my-1 fw-bold">仕様</p>
+              <ul>
+                <li><strong>Large レイアウト：</strong>横幅が 1017px 以上の場合，コメント欄は動画の横に配置できます．</li>
+                <li><strong>Medium レイアウト：</strong>横幅が 1017px 未満の場合，コメント欄は動画の下，または動画のメタデータの下に配置できます．</li>
               </ul>
             </div>
           </div>
         </div>
+        <!-- チュートリアル -->
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOTwo"
-              aria-expanded="true" aria-controls="collapseTwo">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#docs-tutorial"
+              aria-expanded="true" aria-controls="docs-tutorial">
               チュートリアル
             </button>
           </h2>
-          <div id="collapseOTwo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+          <div id="docs-tutorial" class="accordion-collapse collapse show" data-bs-parent="#accordion-word">
             <div class="accordion-body p-3">
               <p class="mb-1 fw-bold">
                 1. Chrome ウェブストアから拡張機能をインストール
@@ -277,7 +253,90 @@
             </div>
           </div>
         </div>
+        <!-- 用語について -->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#docs-word" aria-expanded="false" aria-controls="docs-word">
+              用語について
+            </button>
+          </h2>
+          <div id="docs-word" class="accordion-collapse collapse" data-bs-parent="#accordion-word">
+            <div class="accordion-body p-1">
+              <ul>
+                <li class="mb-1">
+                  <div class="fw-bold">コメント欄：comments</div>
+                  YouTubeの動画ページにおいて，視聴者が動画に対する意見や感想を投稿できるエリア．デフォルトでは動画の下に表示される．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">サイドバー：secondary</div>
+                  画面の横（右側）に表示されるサブエリア（セカンダリエリアとも呼ばれる）で，通常，メインコンテンツの隣に位置する．拡張機能では，コメント欄をこの位置に表示できる．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">Large レイアウト：</div>
+                  ウィンドウの横幅が1017px ~ 1020px 以上の状態．サイドバーが表示される．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">Medium レイアウト：</div>
+                  ウィンドウの横幅が1017px ~ 1020px 未満の状態．サイドバーが表示されない．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">動画プレイヤー：player</div>
+                  動画の再生を担当するインターフェースやコンポーネント．YouTubeのページでは，動画を再生するためのボタン，音量調整，進行状況バー，再生停止ボタンなどが含まれたUIを指す．
+                </li>
+                <li class="mb-1">
+                  <div class="fw-bold">動画メタデータ：metadata</div>
+                  動画に関連する情報や属性のこと．YouTubeでは，タイトル，チャネル名，評価（高評価・低評価），概要欄，公開日，再生回数などが動画メタデータに含まれる．
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- バージョン情報 -->
+    <div class="tab-pane fade mt-2 mx-2" id="version" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="version-tab">
+      <ul class="list-group list-group-flush">
+        <h5 class="pt-3 ps-2 mb-2">更新履歴</h5>
+        <li class="list-group-item">
+          <strong>v1.3.0</strong>
+          <ul class="small mt-1">
+            <li>コメントヘッダーを固定する機能を追加</li>
+            <li>動画プレイヤーを固定する機能の処理を改善</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.2.1</strong>
+          <ul class="small mt-1">
+            <li>フルスクリーン解除後に関連動画の表示位置がずれる問題を修正</li>
+            <li>ポップアップパネルの表示に関する仕組みを改善</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.2.0</strong>
+          <ul class="small mt-1">
+            <li>動画プレイヤーを固定する機能の処理を改善</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.1.0</strong>
+          <ul class="small mt-1">
+            <li>コメント欄の配置オプションを追加</li>
+            <li>関連動画のレイアウトパターンを追加</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.0.1 - v1.0.4</strong>
+          <ul class="small mt-1">
+            <li>シネマティックス（動画の周囲がぼやける演出）の削除処理を改善</li>
+            <li>初期読み込み、サイズ変更、設定保存時の処理を改善</li>
+            <li>設定の保存とレイアウトに関する条件分岐を改善</li>
+            <li>ポップアップ画面のUIを分かりやすく改善</li>
+          </ul>
+        </li>
+      </ul>
     </div>
 
     <!-- 詳細情報 -->
@@ -319,11 +378,12 @@
           <p class="m-0" id="extension-id"></p>
         </li>
         <li class="list-group-item">
-          <p>権限</p>
+          <p class="m-0">権限</p>
+          <p class="m-0" id="permission-info"></p>
         </li>
         <li class="list-group-item">
-          <p>サイトへのアクセス:</p>
-          <p id="permission-info">アクセスしたウェブサイト上にある自分の全データの読み取りと変更をこの拡張機能に許可します．</p>
+          <p class="m-0">サイトへのアクセス:</p>
+          <p class="m-0 py-1">アクセスしたウェブサイト上にある自分の全データの読み取りと変更をこの拡張機能に許可します．</p>
           <span id="site-access">Checking...</span>
         </li>
         </li>

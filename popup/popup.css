@@ -1,12 +1,12 @@
 html {
   font-size: 0.8rem;
+  min-width: 30rem;
 }
 
-
-body {
-  width: 26rem;
-  min-width: 26rem;
-  margin: 0;
+@media (min-width: 768px) {
+  .container-md {
+    max-width: 720px !important;
+  }
 }
 
 #panel {
@@ -14,6 +14,7 @@ body {
   overflow: hidden;
   transition: height 0.3s ease;
 }
+
 #panel.no-transition {
   transition: none !important;
 }
