@@ -51,8 +51,10 @@ const getElements = () => ({
 const settingsLayout = () => ({
   isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
   isLargeStickyPlayer: settings.largeLayout.options.stickyPlayer.option,
+  isLargeStickyComments: settings.largeLayout.options.stickyComments.option,
   isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
   isMediumStickyPlayer: settings.mediumLayout.options.stickyPlayer.option,
+  isMediumStickyComments: settings.mediumLayout.options.stickyComments.option,
   largeLayoutPosition: settings.largeLayout.position,
   mediumLayoutPosition: settings.mediumLayout.position,
   largeHeight: settings.largeLayout.height,
@@ -79,11 +81,13 @@ const observer = new MutationObserver(() => {
       insertSecondary(elements);
       unlockFixationPlayer(isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
+      stickyComments(isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
       // console.log("Switched to medium screen layout");
       insertPrimary(elements);
       unlockFixationPlayer(isLargeScreen);
       fixationPlayer(elements, isLargeScreen);
+      stickyComments(isLargeScreen);
     }
   }
 
@@ -109,10 +113,12 @@ const handleFirstRender = (elements, isLargeScreen) => {
     // console.log("large screen layout");
     insertSecondary(elements);
     fixationPlayer(elements, isLargeScreen);
+    stickyComments(isLargeScreen);
   } else if (!isLargeScreen) {
     // console.log("medium screen layout");
     insertPrimary(elements);
     fixationPlayer(elements, isLargeScreen);
+    stickyComments(isLargeScreen);
   }
 };
 
@@ -233,7 +239,6 @@ const unlockFixationPlayer = (isLargeScreen) => {
   }
 }
 
-
 const height = () => {
   const header = document.querySelector('#container.style-scope.ytd-masthead');
   const headerHeight = header ? header.offsetHeight : 0;
@@ -252,7 +257,6 @@ const height = () => {
   return height ? height : windowHeight - headerHeight - 155;
 };
 
-
 const removeCinematics = () => {
   let attempts = 0;
   const interval = setInterval(() => {
@@ -267,7 +271,6 @@ const removeCinematics = () => {
     }
   }, 1000);
 };
-
 
 /** フルスクリーン判定 */
 function isFullscreen() {
@@ -286,3 +289,45 @@ function sticky(target, top) {
   target.style.top = `${top}px`;
   parentElement.style.height = "100%";
 };
+
+/** コメントヘッダをstickyにする */
+function stickyComments(isLargeScreen) {
+  const { isLargeDefaultPosition, isLargeStickyComments, isMediumDefaultPosition, isMediumStickyComments } = settingsLayout();
+
+  // レイアウト・設定ごとにstickyを適用する条件
+  const shouldSticky =
+    (isLargeScreen && !isLargeDefaultPosition && isLargeStickyComments) ||
+    (!isLargeScreen && !isMediumDefaultPosition && isMediumStickyComments);
+
+  const comments = getElements().comments;
+  if (!comments) return;
+
+  let count = 0;
+  const interval = setInterval(() => {
+    const header = comments.querySelector("#header.style-scope");
+    if (header) {
+      const headerRenderer = header.querySelector("ytd-comments-header-renderer");
+      if (!headerRenderer) return;
+
+      if (shouldSticky) {
+        header.style.position = 'sticky';
+        header.style.top = '0';
+        header.style.zIndex = '999';
+        header.style.background = 'var(--yt-spec-base-background)';
+        header.style.paddingBottom = '5px';
+        headerRenderer.style.marginBottom = '5px';
+      } else { // コメントヘッダを元に戻す
+        header.style.position = 'relative';
+        header.style.top = '0';
+        header.style.zIndex = '0';
+        header.style.background = 'transparent';
+        header.style.paddingBottom = '0';
+        headerRenderer.style.marginBottom = 'var(--comments-header-renderer-margin-bottom,32px)';
+      }
+
+      clearInterval(interval);
+    } else if (++count > 20) {
+      clearInterval(interval);
+    }
+  }, 100);
+}

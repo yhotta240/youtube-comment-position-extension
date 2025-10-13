@@ -10,6 +10,10 @@ const DEFAULT_SETTINGS = {
       stickyPlayer: {
         id: "large-layout-sticky-player-option",
         option: false,
+      },
+      stickyComments: {
+        id: "large-layout-sticky-comments-option",
+        option: false,
       }
     },
     positionPrefix: "large",
@@ -24,6 +28,10 @@ const DEFAULT_SETTINGS = {
     options: {
       stickyPlayer: {
         id: "medium-layout-sticky-player-option",
+        option: false,
+      },
+      stickyComments: {
+        id: "medium-layout-sticky-comments-option",
         option: false,
       }
     },
@@ -48,6 +56,10 @@ function migrateSettings(settings) {
           id: DEFAULT_SETTINGS[key].options.stickyPlayer.id,
           option: value.option || value.options?.stickyPlayer?.option || DEFAULT_SETTINGS[key].options.stickyPlayer.option,
         },
+        stickyComments: {
+          id: DEFAULT_SETTINGS[key].options.stickyComments.id,
+          option: value.options?.stickyComments?.option || DEFAULT_SETTINGS[key].options.stickyComments.option,
+        }
       },
       positionPrefix: value.positionPrefix,
     };
