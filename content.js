@@ -166,6 +166,9 @@ const insertSecondary = (elements) => {
 };
 
 const insertPrimary = (elements) => {
+  // フルスクリーン中はなにもしない
+  if (isFullscreen()) return;
+
   const { isMediumDefaultPosition, mediumLayoutPosition } = settingsLayout();
   const comments = elements.comments;
   const metaData = elements.metaData;
@@ -284,4 +287,7 @@ const removeCinematics = () => {
 };
 
 
-
+/** フルスクリーン判定 */
+function isFullscreen() {
+  return document.fullscreenElement;
+}
