@@ -1,3 +1,5 @@
+import { DEFAULT_SETTINGS, migrateSettings } from './settings.js';
+
 // 初期化処理
 let isEnabled = false;
 const enabledElement = document.getElementById('enabled');
@@ -7,37 +9,12 @@ const manifestData = chrome.runtime.getManifest();
 const imagesPosition = {
   "large-position-default": "./images/large-layout-comments-default.png",
   "large-position-leftside": "./images/large-layout-comments-secondary.png",
-  "large-position-leftside-bottom":"./images/large-layout-comments-secondary-bottom.png",
+  "large-position-leftside-bottom": "./images/large-layout-comments-secondary-bottom.png",
   "large-position-switch": "./images/large-layout-comments-related-switch.png",
   "medium-position-default": "./images/medium-layout-comments-default.png",
   "medium-position-undermetadata": "./images/medium-layout-comments-under-metadata.png",
   "medium-position-underplayer": "./images/medium-layout-comments-under-player.png",
 };
-
-const defaultSettings = {
-  largeLayout: {
-    positionId: "large-layout-position",
-    position: "large-position-leftside",
-    positionImgId: "large-image",
-    positionImage: "./images/large-layout-comments-secondary-left.png",
-    heightId: "large-height-comments",
-    height: '',
-    optionId: "large-layout-option",
-    option: false,
-    positionPrefix: "large",
-  },
-  mediumLayout: {
-    positionId: "medium-layout-position",
-    position: "medium-position-default",
-    positionImgId: "medium-image",
-    positionImage: "./images/medium-layout-comments-default.png",
-    heightId: "medium-height-comments",
-    height: '',
-    optionId: "medium-layout-option",
-    option: false,
-    positionPrefix: "medium",
-  }
-}
 
 // チェックボックス（トグルボタン）の状態が変更されたとき，ツールの有効/無効状態を更新
 enabledElement.addEventListener('change', (event) => {
@@ -46,7 +23,6 @@ enabledElement.addEventListener('change', (event) => {
     messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
   });
 });
-
 
 // 保存された設定（'settings'と'isEnabled'）を読み込む
 chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
@@ -60,12 +36,11 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
 
 function popupLoad(data) {
   if (!data) {
-    data = defaultSettings;
+    data = DEFAULT_SETTINGS;
     chrome.storage.local.set({ settings: data });
   };
-  const settings = data;
+  const settings = migrateSettings(data);
 
-  // console.log("settings", settings);
   ["largeLayout", "mediumLayout"].forEach((layout) => {
 
     ["height", "position"].forEach((prop) => {
@@ -92,11 +67,12 @@ function popupLoad(data) {
   });
 
   const positionLarge = document.getElementById(settings.largeLayout.positionId);
-  const optionLarge = document.getElementById(settings.largeLayout.optionId);
+  const optionLarge = document.getElementById(settings.largeLayout.options.stickyPlayer.id);
   const heightLarge = document.getElementById(settings.largeLayout.heightId);
 
   const isLargeDefault = settings.largeLayout.position === "large-position-default";
-  optionLarge.checked = settings.largeLayout.option;
+
+  optionLarge.checked = settings.largeLayout.options.stickyPlayer.option;
   optionLarge.disabled = isLargeDefault;
   heightLarge.disabled = isLargeDefault;
   heightLarge.value = isLargeDefault ? '' : settings.largeLayout.height;
@@ -106,18 +82,19 @@ function popupLoad(data) {
     heightLarge.disabled = isLargeDefault;
     heightLarge.value = isLargeDefault ? '' : settings.largeLayout.height;
   });
-  optionLarge.addEventListener("change", () => {
-    settings.largeLayout.option = optionLarge.checked;
-    // console.log("選択変更:", optionLarge.checked, settings);
+  optionLarge.addEventListener("change", (e) => {
+    // console.log("選択変更:", e.target.checked, settings.largeLayout.options.stickyPlayer.option);
+    settings.largeLayout.options.stickyPlayer.option = e.target.checked;
     chrome.storage.local.set({ settings });
   });
 
   const positionMedium = document.getElementById(settings.mediumLayout.positionId);
-  const optionMedium = document.getElementById(settings.mediumLayout.optionId);
+  const optionMedium = document.getElementById(settings.mediumLayout.options.stickyPlayer.id);
   const heightMedium = document.getElementById(settings.mediumLayout.heightId);
 
   const isMediumDefault = settings.mediumLayout.position === "medium-position-default";
-  optionMedium.checked = settings.mediumLayout.option;
+
+  optionMedium.checked = settings.mediumLayout.options.stickyPlayer.option;
   optionMedium.disabled = isMediumDefault;
   heightMedium.disabled = isMediumDefault;
   heightMedium.value = isMediumDefault ? '' : settings.mediumLayout.height;
@@ -127,9 +104,8 @@ function popupLoad(data) {
     heightMedium.disabled = isMediumDefault;
     heightMedium.value = isMediumDefault ? '' : settings.mediumLayout.height;
   });
-  optionMedium.addEventListener("change", () => {
-    settings.mediumLayout.option = optionMedium.checked;
-    // console.log("選択変更:", optionMedium.checked, settings);
+  optionMedium.addEventListener("change", (e) => {
+    settings.mediumLayout.options.stickyPlayer.option = e.target.checked;
     chrome.storage.local.set({ settings });
   });
 
@@ -137,8 +113,6 @@ function popupLoad(data) {
 
 // DOMの読み込み完了を監視し，完了後に実行
 document.addEventListener('DOMContentLoaded', function () {
-
-
   const title = document.getElementById('title');
   title.textContent = `YouTube コメントポジション`;
   const titleHeader = document.getElementById('title-header');
@@ -149,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
   newTabButton.addEventListener('click', () => {
     chrome.tabs.create({ url: 'popup/popup.html' });
   });
-  // 情報タブ: 
+  // 情報タブ:
   const storeLink = document.getElementById('store_link');
   storeLink.href = `https://chrome.google.com/webstore/detail/${chrome.runtime.id}`;
   if (storeLink) clickURL(storeLink);

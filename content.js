@@ -1,33 +1,11 @@
 let isEnabled = false;
 let settings = {};
 
-const defaultSettings = {
-  largeLayout: {
-    positionId: "large-layout-position",
-    position: "large-position-leftside",
-    positionImgId: "large-image",
-    positionImage: "./images/large-layout-comments-secondary-left.png",
-    heightId: "large-height-comments",
-    height: null,
-    optionId: "large-layout-option",
-    option: false,
-    positionPrefix: "large",
-  },
-  mediumLayout: {
-    positionId: "medium-layout-position",
-    position: "medium-position-default",
-    positionImgId: "medium-image",
-    positionImage: "./images/medium-layout-comments-default.png",
-    heightId: "medium-height-comments",
-    height: null,
-    optionId: "medium-layout-option",
-    option: false,
-    positionPrefix: "medium",
-  }
-}
+const settingsURL = chrome.runtime.getURL("popup/settings.js");
 const manifestData = chrome.runtime.getManifest();
+
 // Sampleツールの有効/無効を処理する関数
-const handleSampleTool = (isEnabled) => {
+const handleEnabled = (isEnabled) => {
   if (isEnabled) {
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
@@ -35,21 +13,14 @@ const handleSampleTool = (isEnabled) => {
   }
 };
 
-
 // 最初の読み込みまたはリロード後に実行する処理
-chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
-  isEnabled = data.isEnabled || isEnabled;
-  settings = data.settings || defaultSettings;
-  // console.log("settings", settings);
-  handleSampleTool(isEnabled);
-});
+chrome.storage.local.get(['settings', 'isEnabled'], async (data) => {
+  const { DEFAULT_SETTINGS, migrateSettings } = await import(settingsURL);
 
-// // ストレージの値が変更されたときに実行される処理
-// chrome.storage.onChanged.addListener((changes) => {
-//   isEnabled = changes.isEnabled ? changes.isEnabled.newValue : isEnabled;
-//   settings = changes.settings ? changes.settings.newValue : defaultSettings;
-// handleSampleTool(isEnabled);
-// });
+  isEnabled = data.isEnabled || isEnabled;
+  settings = migrateSettings(data.settings) || DEFAULT_SETTINGS;
+  handleEnabled(isEnabled);
+});
 
 const pageManager = () => {
   const pageManager = document.querySelectorAll("#page-manager > ytd-watch-flexy");
@@ -59,7 +30,6 @@ const pageManager = () => {
   // console.log("pageManager", isTwoColumn, isTwoColumns, isThreeColumns);
   return !(isTwoColumn === undefined) && !(isTwoColumns === undefined);
 };
-
 
 const getElements = () => ({
   primary: document.querySelector("#primary.style-scope.ytd-watch-flexy"),
@@ -72,20 +42,22 @@ const getElements = () => ({
   comments: document.querySelector('#comments.style-scope.ytd-watch-flexy'),
   related: document.querySelector('#related.style-scope.ytd-watch-flexy'),
   cinematics: document.querySelector("#cinematics > div > div"),
-  metaData: document.querySelector("#below > ytd-watch-metadata")
+  metaData: document.querySelector("#below > ytd-watch-metadata"),
+  ytdApp: document.querySelector('ytd-app'),
+  ytdWatchFlexy: document.querySelector("ytd-app ytd-watch-flexy"),
+  fullBleed: document.querySelector("#full-bleed-container.style-scope.ytd-watch-flexy")
 });
-const settingsLayout = () => (
-  {
-    isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
-    isLargeDefaultOption: settings.largeLayout.option,
-    isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
-    isMediumDefaultOption: settings.mediumLayout.option,
-    largeLayoutPosition: settings.largeLayout.position,
-    mediumLayoutPosition: settings.mediumLayout.position,
-    largeHeight: settings.largeLayout.height,
-    mediumHeight: settings.mediumLayout.height
-  }
-)
+
+const settingsLayout = () => ({
+  isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
+  isLargeStickyPlayer: settings.largeLayout.options.stickyPlayer.option,
+  isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
+  isMediumStickyPlayer: settings.mediumLayout.options.stickyPlayer.option,
+  largeLayoutPosition: settings.largeLayout.position,
+  mediumLayoutPosition: settings.mediumLayout.position,
+  largeHeight: settings.largeLayout.height,
+  mediumHeight: settings.mediumLayout.height
+});
 
 
 let preRespWidth = null;
@@ -210,40 +182,50 @@ const styleComments = (comments, isDefaultPosition) => {
 };
 
 const fixationPlayer = (elements, isLargeScreen) => {
-  const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
-  const player = elements.player;
+  const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
+  const { player, ytdWatchFlexy, fullBleed } = elements;
 
-  const applySticky = (primaryInner) => {
-    player.style.position = 'sticky';
-    player.style.zIndex = '9999';
-    primaryInner.style.height = '100%';
-    player.style.top = primaryInner.offsetTop + "px";
-  };
+  if (!player || !ytdWatchFlexy || !fullBleed) return;
 
-  if ((!isLargeDefaultPosition && isLargeDefaultOption && isLargeScreen) ||
-    (!isMediumDefaultPosition && isMediumDefaultOption && !isLargeScreen)) {
+  // offsetTopが計算されるのを待ってからstickyを適用するヘルパー関数
+  const applyStickyWhenReady = (targetElement) => {
+    let attempts = 0;
     const interval = setInterval(() => {
-      const primaryInner = elements.primaryInner;
-      if (primaryInner.offsetTop !== 0) {
-        applySticky(primaryInner);
+      attempts++;
+      if (ytdWatchFlexy.offsetTop !== 0) {
+        sticky(targetElement, ytdWatchFlexy.offsetTop);
+        clearInterval(interval);
+      } else if (attempts > 20) { // 2秒後にタイムアウト
         clearInterval(interval);
       }
     }, 100);
+  };
+
+  if (isLargeScreen) {
+    // Large screen layout
+    if (!isLargeDefaultPosition && isLargeStickyPlayer) {
+      applyStickyWhenReady(player);
+    }
+  } else {
+    // Medium screen layout
+    if (!isMediumDefaultPosition && isMediumStickyPlayer) {
+      applyStickyWhenReady(fullBleed);
+    }
   }
 };
 
 const unlockFixationPlayer = (isLargeScreen) => {
-  const { isLargeDefaultPosition, isLargeDefaultOption, isMediumDefaultPosition, isMediumDefaultOption } = settingsLayout();
+  const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
   const elements = getElements();
-  // console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeDefaultOption, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen);
-  if ((isLargeDefaultPosition || !isLargeDefaultOption) && isLargeScreen) {
+  // console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeStickyPlayer, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen);
+  if ((isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen) {
     // console.log('large layout unlockFixationPlayer', elements.below);
     const player = elements.player;
     player.style.top = '0';
     player.style.position = 'relative';
   }
-  // console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumDefaultOption, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen);
-  if ((isMediumDefaultPosition || !isMediumDefaultOption) && !isLargeScreen) {
+  // console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumStickyPlayer, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumStickyPlayer) && !isLargeScreen);
+  if ((isMediumDefaultPosition || !isMediumStickyPlayer) && !isLargeScreen) {
     // console.log('medium layout unlockFixationPlayer');
     const player = elements.player;
     player.style.top = '0';
@@ -291,3 +273,16 @@ const removeCinematics = () => {
 function isFullscreen() {
   return document.fullscreenElement;
 }
+
+/** Elementをstickyにする */
+function sticky(target, top) {
+  const ytdApp = getElements().ytdApp;
+  const parentElement = target.parentElement;
+  if (!ytdApp || !parentElement) return;
+  ytdApp.style.overflow = 'visible';
+
+  target.style.position = 'sticky';
+  target.style.zIndex = '1000';
+  target.style.top = `${top}px`;
+  parentElement.style.height = "100%";
+};

@@ -15,5 +15,11 @@
       "matches": ["https://www.youtube.com/*"],
       "js": ["content.js"]
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["popup/settings.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
