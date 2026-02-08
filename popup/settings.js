@@ -39,32 +39,4 @@ const DEFAULT_SETTINGS = {
   }
 }
 
-function migrateSettings(settings) {
-  const newSettings = {};
-
-  for (const [key, value] of Object.entries(settings)) {
-    // 旧構造の要素を新構造にマッピング
-    newSettings[key] = {
-      positionId: value.positionId,
-      position: value.position,
-      positionImgId: value.positionImgId,
-      positionImage: value.positionImage,
-      heightId: value.heightId,
-      height: value.height || null,
-      options: {
-        stickyPlayer: {
-          id: DEFAULT_SETTINGS[key].options.stickyPlayer.id,
-          option: value.option || value.options?.stickyPlayer?.option || DEFAULT_SETTINGS[key].options.stickyPlayer.option,
-        },
-        stickyComments: {
-          id: DEFAULT_SETTINGS[key].options.stickyComments.id,
-          option: value.options?.stickyComments?.option || DEFAULT_SETTINGS[key].options.stickyComments.option,
-        }
-      },
-      positionPrefix: value.positionPrefix,
-    };
-  }
-
-  return newSettings;
-}
-export { DEFAULT_SETTINGS, migrateSettings };
+export { DEFAULT_SETTINGS };

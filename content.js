@@ -15,10 +15,10 @@ const handleEnabled = (isEnabled) => {
 
 // 最初の読み込みまたはリロード後に実行する処理
 chrome.storage.local.get(['settings', 'isEnabled'], async (data) => {
-  const { DEFAULT_SETTINGS, migrateSettings } = await import(settingsURL);
+  const { DEFAULT_SETTINGS } = await import(settingsURL);
 
   isEnabled = data.isEnabled || isEnabled;
-  settings = migrateSettings(data.settings) || DEFAULT_SETTINGS;
+  settings = data.settings || DEFAULT_SETTINGS;
   handleEnabled(isEnabled);
 });
 

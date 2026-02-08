@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, migrateSettings } from './settings.js';
+import { DEFAULT_SETTINGS } from './settings.js';
 
 // 初期化処理
 let isEnabled = false;
@@ -34,12 +34,12 @@ chrome.storage.local.get(['settings', 'isEnabled'], (data) => {
   messageOutput(dateTime(), isEnabled ? `${manifestData.name} はONになっています` : `${manifestData.name} はOFFになっています`);
 });
 
-function popupLoad(data) {
-  if (!data) {
-    data = DEFAULT_SETTINGS;
-    chrome.storage.local.set({ settings: data });
+function popupLoad(settingData) {
+  if (!settingData) {
+    settingData = DEFAULT_SETTINGS;
+    chrome.storage.local.set({ settings: settingData });
   };
-  const settings = migrateSettings(data);
+  const settings = settingData;
 
   ["largeLayout", "mediumLayout"].forEach((layout) => {
 
