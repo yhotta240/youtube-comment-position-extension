@@ -1,11 +1,11 @@
-let isEnabled = false;
-let settings = {};
+import { DEFAULT_SETTINGS } from "settings";
+import { getElements, isFullscreen } from "./elements";
+import { YoutubeElements } from "./types";
 
-const settingsURL = chrome.runtime.getURL("popup/settings.js");
-const manifestData = chrome.runtime.getManifest();
+let isEnabled: boolean = false;
+let settings: Record<string, any> = {};
 
-// Sampleツールの有効/無効を処理する関数
-const handleEnabled = (isEnabled) => {
+const handleEnabled = (isEnabled: boolean) => {
   if (isEnabled) {
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
@@ -15,38 +15,19 @@ const handleEnabled = (isEnabled) => {
 
 // 最初の読み込みまたはリロード後に実行する処理
 chrome.storage.local.get(['settings', 'isEnabled'], async (data) => {
-  const { DEFAULT_SETTINGS } = await import(settingsURL);
-
-  isEnabled = data.isEnabled || isEnabled;
+  isEnabled = data.isEnabled as boolean || isEnabled;
   settings = data.settings || DEFAULT_SETTINGS;
   handleEnabled(isEnabled);
 });
 
 const pageManager = () => {
-  const pageManager = document.querySelectorAll("#page-manager > ytd-watch-flexy");
-  const isTwoColumn = pageManager[0].attributes["default-two-column-layout"];
-  const isTwoColumns = pageManager[0].attributes["is-two-columns_"]
-  // const isThreeColumns = pageManager[0].attributes.length
+  const pageManager = document.querySelectorAll<HTMLElement>("#page-manager > ytd-watch-flexy")[0];
+  const isTwoColumn = pageManager.attributes["default-two-column-layout" as keyof typeof pageManager.attributes];
+  const isTwoColumns = pageManager.attributes["is-two-columns_" as keyof typeof pageManager.attributes];
+  // const isThreeColumns = pageManager.attributes.length
   // console.log("pageManager", isTwoColumn, isTwoColumns, isThreeColumns);
   return !(isTwoColumn === undefined) && !(isTwoColumns === undefined);
 };
-
-const getElements = () => ({
-  primary: document.querySelector("#primary.style-scope.ytd-watch-flexy"),
-  primaryInner: document.querySelector("#primary-inner.style-scope.ytd-watch-flexy"),
-  player: document.querySelector('#player.style-scope.ytd-watch-flexy'),
-  playerContainerOuter: document.querySelector("#player-container-outer.style-scope.ytd-watch-flexy"),
-  below: document.querySelector('#below.style-scope.ytd-watch-flexy'),
-  secondary: document.querySelector('#secondary.style-scope.ytd-watch-flexy'),
-  secondaryInner: document.querySelector('#secondary-inner.style-scope.ytd-watch-flexy'),
-  comments: document.querySelector('#comments.style-scope.ytd-watch-flexy'),
-  related: document.querySelector('#related.style-scope.ytd-watch-flexy'),
-  cinematics: document.querySelector("#cinematics > div > div"),
-  metaData: document.querySelector("#below > ytd-watch-metadata"),
-  ytdApp: document.querySelector('ytd-app'),
-  ytdWatchFlexy: document.querySelector("ytd-app ytd-watch-flexy"),
-  fullBleed: document.querySelector("#full-bleed-container.style-scope.ytd-watch-flexy")
-});
 
 const settingsLayout = () => ({
   isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
@@ -61,10 +42,9 @@ const settingsLayout = () => ({
   mediumHeight: settings.mediumLayout.height
 });
 
-
-let preRespWidth = null;
+let preRespWidth: 'large' | 'medium' | null = null;
 let isReloaded = false;
-let preUrl = null;
+let preUrl: string | null = null;
 
 const observer = new MutationObserver(() => {
   const elements = getElements();
@@ -106,9 +86,7 @@ const observer = new MutationObserver(() => {
   preRespWidth = isLargeScreen ? 'large' : 'medium';
 });
 
-const handleFirstRender = (elements, isLargeScreen) => {
-  // console.log("Custom tab is not present, rendering...");
-
+const handleFirstRender = (elements: YoutubeElements, isLargeScreen: boolean) => {
   if (isLargeScreen) {
     // console.log("large screen layout");
     insertSecondary(elements);
@@ -122,59 +100,60 @@ const handleFirstRender = (elements, isLargeScreen) => {
   }
 };
 
-const insertSecondary = (elements) => {
+const insertSecondary = (elements: YoutubeElements) => {
   const { isLargeDefaultPosition, largeLayoutPosition } = settingsLayout();
-  const comments = elements.comments;
-  const related = elements.related;
+  const { comments, related, secondaryInner, below } = elements;
+  if (!comments || !related || !secondaryInner || !below) return;
   styleComments(comments, isLargeDefaultPosition);
   if (!isLargeDefaultPosition) {
     if (largeLayoutPosition === "large-position-leftside") {
-      elements.secondaryInner.insertBefore(comments, elements.secondaryInner.firstChild);
+      secondaryInner.insertBefore(comments, secondaryInner.firstChild);
     }
     else if (largeLayoutPosition === "large-position-leftside-bottom") {
-      elements.secondaryInner.insertBefore(comments, related);
+      secondaryInner.insertBefore(comments, related);
     }
     else if (largeLayoutPosition === "large-position-switch") {
-      elements.secondaryInner.appendChild(comments);
+      secondaryInner.appendChild(comments);
       setTimeout(() => {
-        elements.below.appendChild(related);
+        below.appendChild(related);
       }, 100);
     }
   }
 };
 
-const insertPrimary = (elements) => {
+const insertPrimary = (elements: YoutubeElements) => {
   // フルスクリーン中はなにもしない
   if (isFullscreen()) return;
 
   const { isMediumDefaultPosition, mediumLayoutPosition } = settingsLayout();
-  const comments = elements.comments;
-  const metaData = elements.metaData;
+  const { comments, metaData, below, related } = elements;
+  if (!comments || !metaData || !below || !related) return;
+
   styleComments(comments, isMediumDefaultPosition);
 
   if (isMediumDefaultPosition) {
-    elements.below.appendChild(comments);
+    below.appendChild(comments);
     setTimeout(() => {
-      elements.below.insertBefore(elements.related, comments);
+      below.insertBefore(related, comments);
     }, 100);
     return;
   }
 
   if (mediumLayoutPosition === "medium-position-underplayer") {
-    // elements.below.insertBefore(comments, elements.below.firstChild);
-    elements.below.insertBefore(comments, metaData);
+    // below.insertBefore(comments, below.firstChild);
+    below.insertBefore(comments, metaData);
   } else if (mediumLayoutPosition === "medium-position-undermetadata") {
-    elements.below.appendChild(comments);
+    below.appendChild(comments);
   }
   setTimeout(() => {
-    elements.below.appendChild(elements.related);
+    below.appendChild(related);
   }, 100);
 };
 
-const styleComments = (comments, isDefaultPosition) => {
+const styleComments = (comments: HTMLElement, isDefaultPosition: boolean) => {
   if (isDefaultPosition) {
-    comments.style.padding = 0;
-    comments.style.margin = 0;
+    comments.style.padding = '0';
+    comments.style.margin = '0';
     comments.style.maxHeight = 'none';
     comments.style.overflowY = 'none';
     return;
@@ -184,17 +163,16 @@ const styleComments = (comments, isDefaultPosition) => {
   comments.style.margin = '0 0 20px 0';
   comments.style.maxHeight = `${height()}px`;
   comments.style.overflowY = 'auto';
-
 };
 
-const fixationPlayer = (elements, isLargeScreen) => {
+const fixationPlayer = (elements: YoutubeElements, isLargeScreen: boolean) => {
   const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
   const { player, ytdWatchFlexy, fullBleed } = elements;
 
   if (!player || !ytdWatchFlexy || !fullBleed) return;
 
   // offsetTopが計算されるのを待ってからstickyを適用するヘルパー関数
-  const applyStickyWhenReady = (targetElement) => {
+  const applyStickyWhenReady = (targetElement: HTMLElement) => {
     let attempts = 0;
     const interval = setInterval(() => {
       attempts++;
@@ -220,13 +198,14 @@ const fixationPlayer = (elements, isLargeScreen) => {
   }
 };
 
-const unlockFixationPlayer = (isLargeScreen) => {
+const unlockFixationPlayer = (isLargeScreen: boolean) => {
   const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
   const elements = getElements();
   // console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeStickyPlayer, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen);
   if ((isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen) {
     // console.log('large layout unlockFixationPlayer', elements.below);
     const player = elements.player;
+    if (!player) return;
     player.style.top = '0';
     player.style.position = 'relative';
   }
@@ -234,13 +213,14 @@ const unlockFixationPlayer = (isLargeScreen) => {
   if ((isMediumDefaultPosition || !isMediumStickyPlayer) && !isLargeScreen) {
     // console.log('medium layout unlockFixationPlayer');
     const player = elements.player;
+    if (!player) return;
     player.style.top = '0';
     player.style.position = 'relative';
   }
 }
 
 const height = () => {
-  const header = document.querySelector('#container.style-scope.ytd-masthead');
+  const header = document.querySelector<HTMLElement>('#container.style-scope.ytd-masthead');
   const headerHeight = header ? header.offsetHeight : 0;
   const windowHeight = window.innerHeight;
   // console.log(headerHeight, windowHeight, windowHeight - headerHeight - 155);
@@ -272,13 +252,8 @@ const removeCinematics = () => {
   }, 1000);
 };
 
-/** フルスクリーン判定 */
-function isFullscreen() {
-  return document.fullscreenElement;
-}
-
 /** Elementをstickyにする */
-function sticky(target, top) {
+function sticky(target: HTMLElement, top: number) {
   const ytdApp = getElements().ytdApp;
   const parentElement = target.parentElement;
   if (!ytdApp || !parentElement) return;
@@ -291,7 +266,7 @@ function sticky(target, top) {
 };
 
 /** コメントヘッダをstickyにする */
-function stickyComments(isLargeScreen) {
+function stickyComments(isLargeScreen: boolean) {
   const { isLargeDefaultPosition, isLargeStickyComments, isMediumDefaultPosition, isMediumStickyComments } = settingsLayout();
 
   // レイアウト・設定ごとにstickyを適用する条件
@@ -304,9 +279,9 @@ function stickyComments(isLargeScreen) {
 
   let count = 0;
   const interval = setInterval(() => {
-    const header = comments.querySelector("#header.style-scope");
+    const header = comments.querySelector<HTMLElement>("#header.style-scope");
     if (header) {
-      const headerRenderer = header.querySelector("ytd-comments-header-renderer");
+      const headerRenderer = header.querySelector<HTMLElement>("ytd-comments-header-renderer");
       if (!headerRenderer) return;
 
       if (shouldSticky) {
