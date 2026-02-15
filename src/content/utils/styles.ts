@@ -9,18 +9,11 @@ export function applyCommentStyles(comments: HTMLElement, isDefaultPosition: boo
   }
 }
 
-export function removeCinematics(): void {
-  let attempts = 0;
-  const interval = setInterval(() => {
-    const cinematics = getElements().cinematics;
-    if (cinematics) {
-      cinematics.remove();
-      clearInterval(interval);
-    }
-    if (++attempts >= 10) {
-      clearInterval(interval);
-    }
-  }, 1000);
+export function hideCinematics(shouldHide: boolean): void {
+  const cinematics = getElements().cinematics;
+  if (cinematics && shouldHide && !cinematics.classList.contains('ycp-hidden')) {
+    cinematics.classList.add('ycp-hidden');
+  }
 }
 
 export function toggleSticky(target: HTMLElement, shouldSticky: boolean, top: number): void {

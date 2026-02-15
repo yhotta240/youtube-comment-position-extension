@@ -1,6 +1,6 @@
 import { getLayoutSettings } from "../state";
 import { YoutubeElements } from "../types";
-import { toggleSticky } from "../utils/styles";
+import { hideCinematics, toggleSticky } from "../utils/styles";
 
 export function applyPlayerSticky(elements: YoutubeElements, isLargeScreen: boolean): void {
   const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = getLayoutSettings();
@@ -18,6 +18,7 @@ export function applyPlayerSticky(elements: YoutubeElements, isLargeScreen: bool
     const interval = setInterval(() => {
       if (ytdWatchFlexy.offsetTop !== 0) {
         toggleSticky(targetElement, true, ytdWatchFlexy.offsetTop);
+        hideCinematics(true);
         clearInterval(interval);
       } else if (++attempts >= 20) {
         clearInterval(interval);
@@ -25,5 +26,6 @@ export function applyPlayerSticky(elements: YoutubeElements, isLargeScreen: bool
     }, 100);
   } else {
     toggleSticky(targetElement, false, 0);
+    hideCinematics(false);
   }
 }

@@ -1,3 +1,7 @@
+.ycp-hidden {
+  display: none !important;
+}
+
 .ycp-comments-custom {
   position: relative !important;
   padding: 0 10px !important;
@@ -33,4 +37,3 @@
 .ycp-comment-header-sticky ytd-comments-header-renderer {
   margin: 15px 0 !important;
 }
-

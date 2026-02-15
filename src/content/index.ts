@@ -5,7 +5,6 @@ import { isLargeScreenLayout } from "./utils/height";
 import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
-import { removeCinematics } from "./utils/styles";
 import { YoutubeElements } from "./types";
 
 function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
@@ -44,7 +43,6 @@ const observer = new MutationObserver(() => {
     setPreUrl(currentVideoId);
   }
 
-  removeCinematics();
   setPreRespWidth(isLargeScreen ? 'large' : 'medium');
 });
 

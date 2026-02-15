@@ -10,7 +10,7 @@ export const getElements = (): YoutubeElements => ({
   secondaryInner: document.querySelector<HTMLElement>('#secondary-inner.style-scope.ytd-watch-flexy'),
   comments: document.querySelector<HTMLElement>('#comments.style-scope.ytd-watch-flexy'),
   related: document.querySelector<HTMLElement>('#related.style-scope.ytd-watch-flexy'),
-  cinematics: document.querySelector<HTMLElement>("#cinematics > div > div"),
+  cinematics: document.querySelector<HTMLElement>("#cinematics.style-scope.ytd-watch-flexy"),
   metaData: document.querySelector<HTMLElement>("#below > ytd-watch-metadata"),
   ytdApp: document.querySelector<HTMLElement>('ytd-app'),
   ytdWatchFlexy: document.querySelector<HTMLElement>("ytd-app ytd-watch-flexy"),
