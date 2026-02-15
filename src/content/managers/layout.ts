@@ -18,8 +18,16 @@ export function insertSecondary(elements: YoutubeElements): void {
     if (largeLayoutPosition === "large-position-leftside") {
       secondaryInner.insertBefore(comments, secondaryInner.firstChild);
     }
+    if (!secondaryInner.contains(related)) {
+      secondaryInner.appendChild(related);
+    }
     else if (largeLayoutPosition === "large-position-leftside-bottom") {
-      secondaryInner.insertBefore(comments, related);
+      if (secondaryInner.contains(related)) {
+        secondaryInner.insertBefore(comments, related);
+      } else {
+        secondaryInner.appendChild(comments);
+        secondaryInner.appendChild(related);
+      }
     }
     else if (largeLayoutPosition === "large-position-switch") {
       secondaryInner.appendChild(comments);

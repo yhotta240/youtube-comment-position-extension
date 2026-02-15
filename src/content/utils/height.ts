@@ -2,13 +2,7 @@ import { settings, getLayoutSettings } from "../state";
 import { setSettings } from "../../settings";
 
 export function isLargeScreenLayout(): boolean {
-  const pageManager = document.querySelectorAll<HTMLElement>("#page-manager > ytd-watch-flexy")[0];
-  if (!pageManager) return false;
-
-  const isTwoColumn = pageManager.attributes["default-two-column-layout" as keyof typeof pageManager.attributes];
-  const isTwoColumns = pageManager.attributes["is-two-columns_" as keyof typeof pageManager.attributes];
-
-  return !(isTwoColumn === undefined) && !(isTwoColumns === undefined);
+  return window.innerWidth >= 1017;
 }
 
 export function calculateHeight(): number {
