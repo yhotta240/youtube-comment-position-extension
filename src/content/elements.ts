@@ -16,8 +16,3 @@ export const getElements = (): YoutubeElements => ({
   ytdWatchFlexy: document.querySelector<HTMLElement>("ytd-app ytd-watch-flexy"),
   fullBleed: document.querySelector<HTMLElement>("#full-bleed-container.style-scope.ytd-watch-flexy")
 });
-
-/** フルスクリーン判定 */
-export function isFullscreen() {
-  return document.fullscreenElement;
-}
