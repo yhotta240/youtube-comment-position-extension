@@ -1,73 +1,34 @@
-import { DEFAULT_SETTINGS } from "settings";
-import { getElements, isFullscreen } from "./elements";
+import "./content.css";
+import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
+import { getElements } from "./elements";
+import { isLargeScreenLayout } from "./utils/height";
+import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
+import { applyPlayerSticky } from "./managers/player";
+import { makeStickyComments } from "./managers/comment";
 import { YoutubeElements } from "./types";
 
-let isEnabled: boolean = false;
-let settings: Record<string, any> = {};
-
-const handleEnabled = (isEnabled: boolean) => {
-  if (isEnabled) {
-    observer.observe(document.body, { childList: true, subtree: true });
-  } else {
-    observer.disconnect();
-  }
-};
-
-// 最初の読み込みまたはリロード後に実行する処理
-chrome.storage.local.get(['settings', 'isEnabled'], async (data) => {
-  isEnabled = data.isEnabled as boolean || isEnabled;
-  settings = data.settings || DEFAULT_SETTINGS;
-  handleEnabled(isEnabled);
-});
-
-const pageManager = () => {
-  const pageManager = document.querySelectorAll<HTMLElement>("#page-manager > ytd-watch-flexy")[0];
-  const isTwoColumn = pageManager.attributes["default-two-column-layout" as keyof typeof pageManager.attributes];
-  const isTwoColumns = pageManager.attributes["is-two-columns_" as keyof typeof pageManager.attributes];
-  // const isThreeColumns = pageManager.attributes.length
-  // console.log("pageManager", isTwoColumn, isTwoColumns, isThreeColumns);
-  return !(isTwoColumn === undefined) && !(isTwoColumns === undefined);
-};
-
-const settingsLayout = () => ({
-  isLargeDefaultPosition: settings.largeLayout.position === "large-position-default",
-  isLargeStickyPlayer: settings.largeLayout.options.stickyPlayer.option,
-  isLargeStickyComments: settings.largeLayout.options.stickyComments.option,
-  isMediumDefaultPosition: settings.mediumLayout.position === "medium-position-default",
-  isMediumStickyPlayer: settings.mediumLayout.options.stickyPlayer.option,
-  isMediumStickyComments: settings.mediumLayout.options.stickyComments.option,
-  largeLayoutPosition: settings.largeLayout.position,
-  mediumLayoutPosition: settings.mediumLayout.position,
-  largeHeight: settings.largeLayout.height,
-  mediumHeight: settings.mediumLayout.height
-});
-
-let preRespWidth: 'large' | 'medium' | null = null;
-let isReloaded = false;
-let preUrl: string | null = null;
+function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
+  applyPlayerSticky(elements, isLargeScreen);
+  makeStickyComments(isLargeScreen);
+}
 
 const observer = new MutationObserver(() => {
   const elements = getElements();
   if (!elements.primary || !elements.below || !elements.secondary || !elements.secondaryInner) return;
-  const isLargeScreen = pageManager();
+
+  const isLargeScreen = isLargeScreenLayout();
 
   if (!isReloaded) {
     handleFirstRender(elements, isLargeScreen);
-
-    isReloaded = true;
+    applyLayout(elements, isLargeScreen);
+    setIsReloaded(true);
   } else {
     if (isLargeScreen && preRespWidth === 'medium') {
-      // console.log("Switched to large screen layout");
       insertSecondary(elements);
-      unlockFixationPlayer(isLargeScreen);
-      fixationPlayer(elements, isLargeScreen);
-      stickyComments(isLargeScreen);
+      applyLayout(elements, isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
-      // console.log("Switched to medium screen layout");
       insertPrimary(elements);
-      unlockFixationPlayer(isLargeScreen);
-      fixationPlayer(elements, isLargeScreen);
-      stickyComments(isLargeScreen);
+      applyLayout(elements, isLargeScreen);
     }
   }
 
@@ -75,234 +36,21 @@ const observer = new MutationObserver(() => {
   const currentVideoId = url.searchParams.get("v");
 
   if (preUrl !== currentVideoId) {
-    // console.log("URL changed!");
     handleFirstRender(elements, isLargeScreen);
-    preUrl = currentVideoId;
+    applyLayout(elements, isLargeScreen);
+    setPreUrl(currentVideoId);
   } else {
-    preUrl = currentVideoId;
+    setPreUrl(currentVideoId);
   }
-  removeCinematics();
 
-  preRespWidth = isLargeScreen ? 'large' : 'medium';
+  setPreRespWidth(isLargeScreen ? 'large' : 'medium');
 });
 
-const handleFirstRender = (elements: YoutubeElements, isLargeScreen: boolean) => {
-  if (isLargeScreen) {
-    // console.log("large screen layout");
-    insertSecondary(elements);
-    fixationPlayer(elements, isLargeScreen);
-    stickyComments(isLargeScreen);
-  } else if (!isLargeScreen) {
-    // console.log("medium screen layout");
-    insertPrimary(elements);
-    fixationPlayer(elements, isLargeScreen);
-    stickyComments(isLargeScreen);
-  }
-};
-
-const insertSecondary = (elements: YoutubeElements) => {
-  const { isLargeDefaultPosition, largeLayoutPosition } = settingsLayout();
-  const { comments, related, secondaryInner, below } = elements;
-  if (!comments || !related || !secondaryInner || !below) return;
-  styleComments(comments, isLargeDefaultPosition);
-  if (!isLargeDefaultPosition) {
-    if (largeLayoutPosition === "large-position-leftside") {
-      secondaryInner.insertBefore(comments, secondaryInner.firstChild);
-    }
-    else if (largeLayoutPosition === "large-position-leftside-bottom") {
-      secondaryInner.insertBefore(comments, related);
-    }
-    else if (largeLayoutPosition === "large-position-switch") {
-      secondaryInner.appendChild(comments);
-      setTimeout(() => {
-        below.appendChild(related);
-      }, 100);
-    }
-  }
-};
-
-const insertPrimary = (elements: YoutubeElements) => {
-  // フルスクリーン中はなにもしない
-  if (isFullscreen()) return;
-
-  const { isMediumDefaultPosition, mediumLayoutPosition } = settingsLayout();
-  const { comments, metaData, below, related } = elements;
-  if (!comments || !metaData || !below || !related) return;
-
-  styleComments(comments, isMediumDefaultPosition);
-
-  if (isMediumDefaultPosition) {
-    below.appendChild(comments);
-    setTimeout(() => {
-      below.insertBefore(related, comments);
-    }, 100);
-    return;
-  }
-
-  if (mediumLayoutPosition === "medium-position-underplayer") {
-    // below.insertBefore(comments, below.firstChild);
-    below.insertBefore(comments, metaData);
-  } else if (mediumLayoutPosition === "medium-position-undermetadata") {
-    below.appendChild(comments);
-  }
-  setTimeout(() => {
-    below.appendChild(related);
-  }, 100);
-};
-
-const styleComments = (comments: HTMLElement, isDefaultPosition: boolean) => {
-  if (isDefaultPosition) {
-    comments.style.padding = '0';
-    comments.style.margin = '0';
-    comments.style.maxHeight = 'none';
-    comments.style.overflowY = 'none';
-    return;
-  };
-  comments.style.position = 'relative';
-  comments.style.padding = '0 10px 0 10px';
-  comments.style.margin = '0 0 20px 0';
-  comments.style.maxHeight = `${height()}px`;
-  comments.style.overflowY = 'auto';
-};
-
-const fixationPlayer = (elements: YoutubeElements, isLargeScreen: boolean) => {
-  const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
-  const { player, ytdWatchFlexy, fullBleed } = elements;
-
-  if (!player || !ytdWatchFlexy || !fullBleed) return;
-
-  // offsetTopが計算されるのを待ってからstickyを適用するヘルパー関数
-  const applyStickyWhenReady = (targetElement: HTMLElement) => {
-    let attempts = 0;
-    const interval = setInterval(() => {
-      attempts++;
-      if (ytdWatchFlexy.offsetTop !== 0) {
-        sticky(targetElement, ytdWatchFlexy.offsetTop);
-        clearInterval(interval);
-      } else if (attempts > 20) { // 2秒後にタイムアウト
-        clearInterval(interval);
-      }
-    }, 100);
-  };
-
-  if (isLargeScreen) {
-    // Large screen layout
-    if (!isLargeDefaultPosition && isLargeStickyPlayer) {
-      applyStickyWhenReady(player);
-    }
+(async () => {
+  await loadSettings();
+  if (isEnabled) {
+    observer.observe(document.body, { childList: true, subtree: true });
   } else {
-    // Medium screen layout
-    if (!isMediumDefaultPosition && isMediumStickyPlayer) {
-      applyStickyWhenReady(fullBleed);
-    }
+    observer.disconnect();
   }
-};
-
-const unlockFixationPlayer = (isLargeScreen: boolean) => {
-  const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = settingsLayout();
-  const elements = getElements();
-  // console.log(' large layout unlockFixationPlayer', isLargeDefaultPosition, !isLargeStickyPlayer, isLargeScreen, ":", (isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen);
-  if ((isLargeDefaultPosition || !isLargeStickyPlayer) && isLargeScreen) {
-    // console.log('large layout unlockFixationPlayer', elements.below);
-    const player = elements.player;
-    if (!player) return;
-    player.style.top = '0';
-    player.style.position = 'relative';
-  }
-  // console.log('medium layout unlockFixationPlayer', isMediumDefaultPosition, !isMediumStickyPlayer, !isLargeScreen, ":", (isMediumDefaultPosition || !isMediumStickyPlayer) && !isLargeScreen);
-  if ((isMediumDefaultPosition || !isMediumStickyPlayer) && !isLargeScreen) {
-    // console.log('medium layout unlockFixationPlayer');
-    const player = elements.player;
-    if (!player) return;
-    player.style.top = '0';
-    player.style.position = 'relative';
-  }
-}
-
-const height = () => {
-  const header = document.querySelector<HTMLElement>('#container.style-scope.ytd-masthead');
-  const headerHeight = header ? header.offsetHeight : 0;
-  const windowHeight = window.innerHeight;
-  // console.log(headerHeight, windowHeight, windowHeight - headerHeight - 155);
-  const isLargeScreen = pageManager();
-  let height = null;
-  if (isLargeScreen) {
-    height = settingsLayout().largeHeight;
-    settings.largeLayout.height = height ? height : windowHeight - headerHeight - 155;
-  } else {
-    height = settingsLayout().mediumHeight;
-    settings.mediumLayout.height = height ? height : windowHeight - headerHeight - 205;
-  }
-  chrome.storage.local.set({ settings: settings });
-  return height ? height : windowHeight - headerHeight - 155;
-};
-
-const removeCinematics = () => {
-  let attempts = 0;
-  const interval = setInterval(() => {
-    const cinematics = getElements().cinematics;
-    if (cinematics) {
-      cinematics.remove();
-      clearInterval(interval);
-    }
-    attempts++;
-    if (attempts >= 10) {
-      clearInterval(interval);
-    }
-  }, 1000);
-};
-
-/** Elementをstickyにする */
-function sticky(target: HTMLElement, top: number) {
-  const ytdApp = getElements().ytdApp;
-  const parentElement = target.parentElement;
-  if (!ytdApp || !parentElement) return;
-  ytdApp.style.overflow = 'visible';
-
-  target.style.position = 'sticky';
-  target.style.zIndex = '1000';
-  target.style.top = `${top}px`;
-  parentElement.style.height = "100%";
-};
-
-/** コメントヘッダをstickyにする */
-function stickyComments(isLargeScreen: boolean) {
-  const { isLargeDefaultPosition, isLargeStickyComments, isMediumDefaultPosition, isMediumStickyComments } = settingsLayout();
-
-  // レイアウト・設定ごとにstickyを適用する条件
-  const shouldSticky =
-    (isLargeScreen && !isLargeDefaultPosition && isLargeStickyComments) ||
-    (!isLargeScreen && !isMediumDefaultPosition && isMediumStickyComments);
-
-  const comments = getElements().comments;
-  if (!comments) return;
-
-  let count = 0;
-  const interval = setInterval(() => {
-    const header = comments.querySelector<HTMLElement>("#header.style-scope");
-    if (header) {
-      const headerRenderer = header.querySelector<HTMLElement>("ytd-comments-header-renderer");
-      if (!headerRenderer) return;
-
-      if (shouldSticky) {
-        header.style.position = 'sticky';
-        header.style.top = '0';
-        header.style.zIndex = '999';
-        header.style.background = 'var(--yt-spec-base-background)';
-        header.style.paddingBottom = '5px';
-        headerRenderer.style.marginBottom = '5px';
-      } else { // コメントヘッダを元に戻す
-        header.style.position = 'relative';
-        header.style.top = '0';
-        header.style.zIndex = '0';
-        header.style.background = 'transparent';
-        header.style.paddingBottom = '0';
-        headerRenderer.style.marginBottom = 'var(--comments-header-renderer-margin-bottom,32px)';
-      }
-
-      clearInterval(interval);
-    } else if (++count > 20) {
-      clearInterval(interval);
-    }
-  }, 100);
-}
+})();
