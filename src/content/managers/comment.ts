@@ -18,24 +18,9 @@ export function makeStickyComments(isLargeScreen: boolean): void {
       const headerRenderer = header.querySelector<HTMLElement>("ytd-comments-header-renderer");
       if (!headerRenderer) return;
 
-      if (shouldSticky) {
-        header.style.position = 'sticky';
-        header.style.top = '0';
-        header.style.zIndex = '999';
-        header.style.background = 'var(--yt-spec-base-background)';
-        header.style.paddingBottom = '5px';
-        headerRenderer.style.marginBottom = '5px';
-      } else {
-        header.style.position = 'relative';
-        header.style.top = '0';
-        header.style.zIndex = '0';
-        header.style.background = 'transparent';
-        header.style.paddingBottom = '0';
-        headerRenderer.style.marginBottom = 'var(--comments-header-renderer-margin-bottom,32px)';
-      }
-
+      header.classList.toggle('ycp-comment-header-sticky', shouldSticky);
       clearInterval(interval);
-    } else if (++count > 20) {
+    } else if (++count >= 20) {
       clearInterval(interval);
     }
   }, 100);

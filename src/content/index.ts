@@ -1,10 +1,17 @@
+import "./content.css";
 import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
 import { getElements } from "./elements";
 import { isLargeScreenLayout } from "./utils/height";
 import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
-import { fixatePlayer, unlockPlayerFixation } from "./managers/player";
+import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
 import { removeCinematics } from "./utils/styles";
+import { YoutubeElements } from "./types";
+
+function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
+  applyPlayerSticky(elements, isLargeScreen);
+  makeStickyComments(isLargeScreen);
+}
 
 const observer = new MutationObserver(() => {
   const elements = getElements();
@@ -14,20 +21,15 @@ const observer = new MutationObserver(() => {
 
   if (!isReloaded) {
     handleFirstRender(elements, isLargeScreen);
-    fixatePlayer(elements, isLargeScreen);
-    makeStickyComments(isLargeScreen);
+    applyLayout(elements, isLargeScreen);
     setIsReloaded(true);
   } else {
     if (isLargeScreen && preRespWidth === 'medium') {
       insertSecondary(elements);
-      unlockPlayerFixation(isLargeScreen);
-      fixatePlayer(elements, isLargeScreen);
-      makeStickyComments(isLargeScreen);
+      applyLayout(elements, isLargeScreen);
     } else if (!isLargeScreen && preRespWidth === 'large') {
       insertPrimary(elements);
-      unlockPlayerFixation(isLargeScreen);
-      fixatePlayer(elements, isLargeScreen);
-      makeStickyComments(isLargeScreen);
+      applyLayout(elements, isLargeScreen);
     }
   }
 
@@ -36,8 +38,7 @@ const observer = new MutationObserver(() => {
 
   if (preUrl !== currentVideoId) {
     handleFirstRender(elements, isLargeScreen);
-    fixatePlayer(elements, isLargeScreen);
-    makeStickyComments(isLargeScreen);
+    applyLayout(elements, isLargeScreen);
     setPreUrl(currentVideoId);
   } else {
     setPreUrl(currentVideoId);

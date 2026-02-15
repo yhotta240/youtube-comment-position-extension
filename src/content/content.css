@@ -1,0 +1,36 @@
+.ycp-comments-custom {
+  position: relative !important;
+  padding: 0 10px !important;
+  margin: 0 0 20px 0 !important;
+  max-height: var(--ycp-comments-height) !important;
+  overflow-y: auto !important;
+}
+
+/* Sticky要素 */
+.ycp-sticky {
+  position: sticky !important;
+  z-index: 1000 !important;
+  top: var(--ycp-sticky-top) !important;
+}
+
+.ycp-sticky-parent {
+  height: 100% !important;
+}
+
+.ycp-app-overflow {
+  overflow: visible !important;
+}
+
+/* コメントヘッダ Sticky */
+.ycp-comment-header-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 999 !important;
+  background: var(--yt-spec-base-background) !important;
+  padding-bottom: 5px !important;
+}
+
+.ycp-comment-header-sticky ytd-comments-header-renderer {
+  margin: 15px 0 !important;
+}
+
