@@ -123,31 +123,30 @@
           </div>
 
           <div class="d-flex align-items-center justify-content-between my-3">
-            <label for="large-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
-            <input type="number" class="mx-2 form-control form-control-sm" id="large-height-comments" min="0"
-              max="1000">
+            <label for="large-height" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
+            <input type="number" class="mx-2 form-control form-control-sm" id="large-height" min="0" max="1000">
             <div class="m-auto">px</div>
           </div>
 
           <div class="d-flex align-items-center justify-content-between">
-            <label for="large-layout-position " class="form-label text-nowrap  m-auto">コメント欄の配置：</label>
-            <select id="large-layout-position" class="form-select form-select-sm" aria-label="large-layout">
-              <option value="large-position-default">デフォルト</option>
-              <option value="large-position-leftside">サイドバー</option>
-              <option value="large-position-leftside-bottom">サイドバー（チャットや再生リスト等の下）</option>
-              <option value="large-position-switch">コメントと関連動画を入れ替える</option>
+            <label for="large-position " class="form-label text-nowrap  m-auto">コメント欄の配置：</label>
+            <select id="large-position" class="form-select form-select-sm" aria-label="large-layout">
+              <option value="large-default">デフォルト</option>
+              <option value="large-secondary">サイドバー</option>
+              <option value="large-secondary-bottom">サイドバー（チャットや再生リスト等の下）</option>
+              <option value="large-switch">コメントと関連動画を入れ替える</option>
             </select>
           </div>
 
           <div class="form-check mt-3">
             <input class="form-check-input large-layout-option" type="checkbox" data-id="stickyPlayer" value=""
-              id="large-layout-sticky-player-option">
-            <label class="form-check-label text-nowrap" for="large-layout-sticky-player-option">
+              id="large-sticky-player">
+            <label class="form-check-label text-nowrap" for="large-sticky-player">
               スクロール時，動画プレイヤーを固定する（オプション）
             </label><br>
             <input class="form-check-input large-layout-option" type="checkbox" data-id="stickyComments" value=""
-              id="large-layout-sticky-comments-option">
-            <label class="form-check-label text-nowrap" for="large-layout-sticky-comments-option">
+              id="large-sticky-comments">
+            <label class="form-check-label text-nowrap" for="large-sticky-comments">
               コメントのヘッダを固定する（オプション）
             </label>
           </div>
@@ -164,30 +163,29 @@
           </div>
 
           <div class="d-flex align-items-center justify-content-between my-3">
-            <label for="medium-height-comments" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
-            <input type="number" class="mx-2 form-control form-control-sm" id="medium-height-comments" min="0"
-              max="1000">
+            <label for="medium-height" class="m-auto form-label text-nowrap">コメント欄の高さ：</label>
+            <input type="number" class="mx-2 form-control form-control-sm" id="medium-height" min="0" max="1000">
             <div class="m-auto">px</div>
           </div>
 
           <div class="d-flex align-items-center justify-content-between">
-            <label for="medium-layout-position " class="form-label text-nowrap m-auto">コメント欄の配置：</label>
-            <select id="medium-layout-position" class="form-select form-select-sm" aria-label="medium-layout">
-              <option value="medium-position-default">デフォルト</option>
-              <option value="medium-position-undermetadata">動画メタデータの下</option>
-              <option value="medium-position-underplayer">動画プレイヤーの下</option>
+            <label for="medium-position " class="form-label text-nowrap m-auto">コメント欄の配置：</label>
+            <select id="medium-position" class="form-select form-select-sm" aria-label="medium-layout">
+              <option value="medium-default">デフォルト</option>
+              <option value="medium-undermetadata">動画メタデータの下</option>
+              <option value="medium-underplayer">動画プレイヤーの下</option>
             </select>
           </div>
 
           <div class="form-check mt-3">
             <input class="form-check-input medium-layout-option" type="checkbox" data-id="stickyPlayer" value=""
-              id="medium-layout-sticky-player-option">
-            <label class="form-check-label text-nowrap" for="medium-layout-sticky-player-option">
+              id="medium-sticky-player">
+            <label class="form-check-label text-nowrap" for="medium-sticky-player">
               スクロール時，動画プレイヤーを固定する（オプション）
             </label><br>
             <input class="form-check-input medium-layout-option" type="checkbox" data-id="stickyComments" value=""
-              id="medium-layout-sticky-comments-option">
-            <label class="form-check-label text-nowrap" for="medium-layout-sticky-comments-option">
+              id="medium-sticky-comments">
+            <label class="form-check-label text-nowrap" for="medium-sticky-comments">
               コメントのヘッダを固定する（オプション）
             </label>
           </div>

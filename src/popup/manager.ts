@@ -92,12 +92,12 @@ export class PopupManager {
     });
 
     // レイアウト設定のイベントリスナー
-    const layouts: Layout[] = ['largeLayout', 'mediumLayout'];
+    const layouts: Layout[] = ['large', 'medium'];
     layouts.forEach((layout: Layout) => {
       const layoutSetting: LayoutSetting = this.settings[layout];
-      const heightInput = document.getElementById(layoutSetting.heightId) as HTMLInputElement | null;
-      const positionEl = document.getElementById(layoutSetting.positionId) as HTMLSelectElement | null;
-      const imageEl = document.getElementById(layoutSetting.positionImgId) as HTMLImageElement | null;
+      const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
+      const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
+      const imageEl = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
       if (positionEl && heightInput && imageEl) {
         positionEl.addEventListener('change', () => {
           const selectedPosition = positionEl.value as keyof typeof IMG_MAP;
@@ -106,7 +106,7 @@ export class PopupManager {
             [layout]: {
               ...layoutSetting,
               position: selectedPosition,
-              positionImage: IMG_MAP[selectedPosition] || layoutSetting.positionImage,
+              img: IMG_MAP[selectedPosition] || layoutSetting.img,
             }
           };
           this.updateSettings(patch, 'レイアウトの位置を保存しました', 'レイアウトの位置の保存に失敗しました');
@@ -125,21 +125,15 @@ export class PopupManager {
       }
 
       // オプション設定のイベントリスナー
-      Object.values(layoutSetting.options).forEach(option => {
-        const optionEl = document.getElementById(option.id) as HTMLInputElement | null;
-        optionEl?.addEventListener('change', (e) => {
+      const optionIds = ['stickyPlayer', 'stickyComments'] as const;
+      optionIds.forEach(optionId => {
+        const optionEl = document.getElementById(`${layout}-sticky-${optionId === 'stickyPlayer' ? 'player' : 'comments'}`) as HTMLInputElement | null;
+        optionEl?.addEventListener('change', () => {
           const value = optionEl.checked;
-          const property = (e.target as HTMLInputElement).dataset.id || '';
           const patch: Partial<Settings> = {
             [layout]: {
               ...layoutSetting,
-              options: {
-                ...layoutSetting.options,
-                [property]: {
-                  id: option.id,
-                  option: value,
-                }
-              }
+              [optionId]: value,
             }
           };
           this.updateSettings(patch, 'オプション設定を保存しました', 'オプション設定の保存に失敗しました');
@@ -183,28 +177,26 @@ export class PopupManager {
   private setupSettingsUI(): void {
     const setLayout = (layout: Layout): void => {
       const layoutSettings: LayoutSetting = this.settings[layout];
-      const heightInput = document.getElementById(layoutSettings.heightId) as HTMLInputElement | null;
-      const positionEl = document.getElementById(layoutSettings.positionId) as HTMLSelectElement | null;
-      const image = document.getElementById(layoutSettings.positionImgId) as HTMLImageElement | null;
+      const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
+      const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
+      const image = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
       if (positionEl && heightInput && image) {
         heightInput.value = layoutSettings.height !== null ? String(layoutSettings.height) : '';
         positionEl.value = layoutSettings.position;
-        image.src = layoutSettings.positionImage;
+        image.src = layoutSettings.img;
       }
     };
     const setOptions = (layout: Layout): void => {
       const layoutSettings: LayoutSetting = this.settings[layout];
-      Object.values(layoutSettings.options).forEach(option => {
-        const optionEl = document.getElementById(option.id) as HTMLInputElement | null;
-        if (optionEl) {
-          optionEl.checked = option.option;
-        }
-      });
+      const stickyPlayerEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
+      const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
+      if (stickyPlayerEl) stickyPlayerEl.checked = layoutSettings.stickyPlayer;
+      if (stickyCommentsEl) stickyCommentsEl.checked = layoutSettings.stickyComments;
     };
-    setLayout('largeLayout');
-    setLayout('mediumLayout');
-    setOptions('largeLayout');
-    setOptions('mediumLayout');
+    setLayout('large');
+    setLayout('medium');
+    setOptions('large');
+    setOptions('medium');
   }
 
   private setupMoreMenu(): void {

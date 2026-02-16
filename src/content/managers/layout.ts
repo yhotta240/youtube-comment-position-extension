@@ -15,13 +15,13 @@ export function insertSecondary(elements: YoutubeElements): void {
   applyCommentStyles(comments, isLargeDefaultPosition);
 
   if (!isLargeDefaultPosition) {
-    if (largeLayoutPosition === "large-position-leftside") {
+    if (largeLayoutPosition === "large-secondary") {
       secondaryInner.insertBefore(comments, secondaryInner.firstChild);
     }
     if (!secondaryInner.contains(related)) {
       secondaryInner.appendChild(related);
     }
-    else if (largeLayoutPosition === "large-position-leftside-bottom") {
+    else if (largeLayoutPosition === "large-secondary-bottom") {
       if (secondaryInner.contains(related)) {
         secondaryInner.insertBefore(comments, related);
       } else {
@@ -29,7 +29,7 @@ export function insertSecondary(elements: YoutubeElements): void {
         secondaryInner.appendChild(related);
       }
     }
-    else if (largeLayoutPosition === "large-position-switch") {
+    else if (largeLayoutPosition === "large-switch") {
       secondaryInner.appendChild(comments);
       setTimeout(() => {
         below.appendChild(related);
@@ -56,9 +56,9 @@ export function insertPrimary(elements: YoutubeElements): void {
     return;
   }
 
-  if (mediumLayoutPosition === "medium-position-underplayer") {
+  if (mediumLayoutPosition === "medium-underplayer") {
     below.insertBefore(comments, metaData);
-  } else if (mediumLayoutPosition === "medium-position-undermetadata") {
+  } else if (mediumLayoutPosition === "medium-undermetadata") {
     below.appendChild(comments);
   }
 
