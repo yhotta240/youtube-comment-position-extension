@@ -8,28 +8,23 @@ function isFullscreen() {
 
 export function insertSecondary(elements: YoutubeElements): void {
   const { isLargeDefaultPosition, largeLayoutPosition } = getLayoutSettings();
-  const { comments, related, secondaryInner, below } = elements;
+  const { comments, related, secondary, secondaryInner, below } = elements;
 
-  if (!comments || !related || !secondaryInner || !below) return;
+  if (!comments || !related || !secondary || !secondaryInner || !below) return;
 
   applyCommentStyles(comments, isLargeDefaultPosition);
 
   if (!isLargeDefaultPosition) {
     if (largeLayoutPosition === "large-secondary") {
-      secondaryInner.insertBefore(comments, secondaryInner.firstChild);
-    }
-    if (!secondaryInner.contains(related)) {
-      secondaryInner.appendChild(related);
-    }
-    else if (largeLayoutPosition === "large-secondary-bottom") {
+      secondary.prepend(comments);
+    } else if (largeLayoutPosition === "large-secondary-bottom") {
       if (secondaryInner.contains(related)) {
         secondaryInner.insertBefore(comments, related);
       } else {
         secondaryInner.appendChild(comments);
         secondaryInner.appendChild(related);
       }
-    }
-    else if (largeLayoutPosition === "large-switch") {
+    } else if (largeLayoutPosition === "large-switch") {
       secondaryInner.appendChild(comments);
       setTimeout(() => {
         below.appendChild(related);
