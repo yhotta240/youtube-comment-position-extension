@@ -94,19 +94,30 @@ export class PopupManager {
     // レイアウト設定のイベントリスナー
     const layouts: Layout[] = ['large', 'medium'];
     layouts.forEach((layout: Layout) => {
-      const layoutSetting: LayoutSetting = this.settings[layout];
       const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
       const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
       const imageEl = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
+      const stickyPlayerEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
+      const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
+
+      // デフォルト配置かどうかで高さとオプションを有効/無効化
+      const updateDisabledState = (position: string) => {
+        const isDefault = position === `${layout}-default`;
+        if (heightInput) heightInput.disabled = isDefault;
+        if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
+        if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
+      };
+
       if (positionEl && heightInput && imageEl) {
         positionEl.addEventListener('change', () => {
           const selectedPosition = positionEl.value as keyof typeof IMG_MAP;
           imageEl.src = IMG_MAP[selectedPosition] || '';
+          updateDisabledState(selectedPosition);
           const patch: Partial<Settings> = {
             [layout]: {
-              ...layoutSetting,
+              ...this.settings[layout],
               position: selectedPosition,
-              img: IMG_MAP[selectedPosition] || layoutSetting.img,
+              img: IMG_MAP[selectedPosition] || this.settings[layout].img,
             }
           };
           this.updateSettings(patch, 'レイアウトの位置を保存しました', 'レイアウトの位置の保存に失敗しました');
@@ -116,7 +127,7 @@ export class PopupManager {
           const heightValue = heightInput.value ? parseInt(heightInput.value) : null;
           const patch: Partial<Settings> = {
             [layout]: {
-              ...layoutSetting,
+              ...this.settings[layout],
               height: heightValue,
             }
           };
@@ -132,13 +143,16 @@ export class PopupManager {
           const value = optionEl.checked;
           const patch: Partial<Settings> = {
             [layout]: {
-              ...layoutSetting,
+              ...this.settings[layout],
               [optionId]: value,
             }
           };
           this.updateSettings(patch, 'オプション設定を保存しました', 'オプション設定の保存に失敗しました');
         });
       });
+
+      // 初期状態を設定
+      updateDisabledState(this.settings[layout].position);
     });
   }
 
@@ -180,10 +194,19 @@ export class PopupManager {
       const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
       const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
       const image = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
+      const stickyPlayerEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
+      const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
+
       if (positionEl && heightInput && image) {
         heightInput.value = layoutSettings.height !== null ? String(layoutSettings.height) : '';
         positionEl.value = layoutSettings.position;
         image.src = layoutSettings.img;
+
+        // デフォルト配置の場合は高さとオプションを無効化
+        const isDefault = layoutSettings.position === `${layout}-default`;
+        heightInput.disabled = isDefault;
+        if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
+        if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
       }
     };
     const setOptions = (layout: Layout): void => {
