@@ -15,10 +15,10 @@ export function calculateHeight(): number {
 
   if (isLargeScreen) {
     height = getLayoutSettings().largeHeight;
-    settings.largeLayout.height = height ? height : windowHeight - headerHeight - 155;
+    settings.large.height = height ? height : windowHeight - headerHeight - 155;
   } else {
     height = getLayoutSettings().mediumHeight;
-    settings.mediumLayout.height = height ? height : windowHeight - headerHeight - 205;
+    settings.medium.height = height ? height : windowHeight - headerHeight - 205;
   }
 
   setSettings(settings);

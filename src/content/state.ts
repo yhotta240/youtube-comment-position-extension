@@ -38,16 +38,16 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 export function getLayoutSettings() {
-  const large = settings.largeLayout;
-  const medium = settings.mediumLayout;
+  const large = settings.large;
+  const medium = settings.medium;
 
   return {
-    isLargeDefaultPosition: large.position === "large-position-default",
-    isLargeStickyPlayer: large.options.stickyPlayer.option,
-    isLargeStickyComments: large.options.stickyComments.option,
-    isMediumDefaultPosition: medium.position === "medium-position-default",
-    isMediumStickyPlayer: medium.options.stickyPlayer.option,
-    isMediumStickyComments: medium.options.stickyComments.option,
+    isLargeDefaultPosition: large.position === "large-default",
+    isLargeStickyPlayer: large.stickyPlayer,
+    isLargeStickyComments: large.stickyComments,
+    isMediumDefaultPosition: medium.position === "medium-default",
+    isMediumStickyPlayer: medium.stickyPlayer,
+    isMediumStickyComments: medium.stickyComments,
     largeLayoutPosition: large.position,
     mediumLayoutPosition: medium.position,
     largeHeight: large.height,
