@@ -5,6 +5,7 @@ import { isLargeScreenLayout } from "./utils/height";
 import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
+import { applySidebarWidth } from "./utils/styles";
 import { YoutubeElements } from "./types";
 
 function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
@@ -50,6 +51,22 @@ const observer = new MutationObserver(() => {
   await loadSettings();
   if (isEnabled) {
     observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('yt-navigate-finish', () => {
+      requestAnimationFrame(() => {
+        applySidebarWidth();
+      });
+    });
+    // ウィンドウリサイズ時にサイドバー幅を再計算
+    let resizeTimeout: number;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(() => {
+        const isLargeScreen = isLargeScreenLayout();
+        if (isLargeScreen) {
+          applySidebarWidth();
+        }
+      }, 100);
+    });
   } else {
     observer.disconnect();
   }

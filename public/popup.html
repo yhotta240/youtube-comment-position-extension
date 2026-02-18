@@ -148,7 +148,23 @@
               id="large-sticky-comments">
             <label class="form-check-label text-nowrap" for="large-sticky-comments">
               コメントのヘッダを固定する（オプション）
+            </label><br>
+            <input class="form-check-input large-layout-option" type="checkbox" data-id="sidebarWidth" value=""
+              id="large-sidebar-width-checkbox">
+            <label class="form-check-label text-nowrap" for="large-sidebar-width-checkbox">
+              サイドバーの幅を設定する（β機能）
             </label>
+            <div id="large-sidebar-width-container" class="d-none d-flex align-items-center justify-content-between">
+              <label for="large-sidebar-width-input" class="m-auto form-label text-nowrap">サイドバー幅：</label>
+              <div class="d-flex align-items-center text-nowrap gap-1">
+                （
+                <input class="form-control form-control-sm" type="number" id="large-sidebar-width-input" min="1"
+                  max="11">
+                /12）×
+                <a href="#" id="column-width-link" class="text-decoration-none">カラム幅</a>
+                − 余白 px
+              </div>
+            </div>
           </div>
 
         </li>
@@ -189,7 +205,6 @@
               コメントのヘッダを固定する（オプション）
             </label>
           </div>
-
         </li>
       </ul>
     </div>
@@ -344,6 +359,10 @@
                 <li>
                   <div class="fw-bold">再生リスト：playlist</div>
                   動画をまとめたリストやコレクション．YouTubeでは，ユーザーが動画を保存・共有できる機能を指す．動画ページのサイドバーに表示されることが多い．
+                </li>
+                <li id="column-width-term">
+                  <div class="fw-bold">カラム幅：columns</div>
+                  YouTubeの動画ページ全体の横幅のこと．この拡張機能では，カラム幅を12分割したグリッドシステムを使用してサイドバーの幅を計算する．例えば，「6/12」と設定すると，カラム幅の半分（50%）がサイドバーの幅として使用される．ただし，実際にはYouTubeの余白分が差し引かれるため，表示される幅は設定値より若干小さくなる．
                 </li>
 
               </ul>

@@ -13,6 +13,7 @@ export type LayoutSetting = {
   height: number | null;
   stickyPlayer: boolean;
   stickyComments: boolean;
+  sidebarWidth?: number | null;
 }
 
 export type Layout = "large" | "medium";
@@ -38,6 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
     height: null,
     stickyPlayer: false,
     stickyComments: false,
+    sidebarWidth: null,
   },
   medium: {
     position: "medium-default",

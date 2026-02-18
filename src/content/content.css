@@ -37,3 +37,20 @@
 .ycp-comment-header-sticky ytd-comments-header-renderer {
   margin: 15px 0 !important;
 }
+
+#primary.ycp-custom-sidebar-width {
+  min-width: calc(var(--ycp-primary-width) - var(--ytd-watch-flexy-horizontal-page-margin) - var(--ytd-watch-flexy-horizontal-page-margin)) !important;
+}
+
+#secondary.ycp-custom-sidebar-width {
+  min-width: calc(var(--ycp-secondary-width) - var(--ytd-watch-flexy-horizontal-page-margin)) !important;
+}
+
+ytd-watch-flexy.ycp-custom-sidebar-width {
+  --ytd-watch-flexy-min-player-height: auto !important;
+}
+
+video.ycp-custom-sidebar-width {
+  height: auto !important;
+  width: 100% !important;
+}
