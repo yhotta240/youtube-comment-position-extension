@@ -154,12 +154,16 @@
             <label class="form-check-label text-nowrap" for="large-sidebar-width-checkbox">
               サイドバーの幅を設定する（β機能）
             </label>
-            <div id="large-sidebar-width-container"
-              class="d-none d-flex align-items-center justify-content-between gap-2">
-              <label for="large-sidebar-width-input" class="m-auto form-label text-nowrap">サイドバーの幅：</label>
-              <input class="form-control form-control-sm" type="number" id="large-sidebar-width-input" min="1" max="11">
-              <div class="m-auto text-nowrap">/12 × <a href="#" id="column-width-link"
-                  class="text-decoration-none">カラム幅</a> - 余白分 px</div>
+            <div id="large-sidebar-width-container" class="d-none d-flex align-items-center justify-content-between">
+              <label for="large-sidebar-width-input" class="m-auto form-label text-nowrap">サイドバー幅：</label>
+              <div class="d-flex align-items-center text-nowrap gap-1">
+                （
+                <input class="form-control form-control-sm" type="number" id="large-sidebar-width-input" min="1"
+                  max="11">
+                /12）×
+                <a href="#" id="column-width-link" class="text-decoration-none">カラム幅</a>
+                − 余白 px
+              </div>
             </div>
           </div>
 
