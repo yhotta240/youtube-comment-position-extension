@@ -51,6 +51,7 @@ export function getLayoutSettings() {
     largeLayoutPosition: large.position,
     mediumLayoutPosition: medium.position,
     largeHeight: large.height,
-    mediumHeight: medium.height
+    mediumHeight: medium.height,
+    largeSidebarWidth: large.sidebarWidth,
   };
 }

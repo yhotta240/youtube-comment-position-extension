@@ -1,5 +1,5 @@
 import './popup.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Tab, Collapse } from 'bootstrap';
 import { PopupPanel } from './components/panel';
 import { dateTime } from '../utils/date';
 import { openLinkNewTab } from '../utils/dom';
@@ -106,6 +106,19 @@ export class PopupManager {
         if (heightInput) heightInput.disabled = isDefault;
         if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
         if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
+
+        // Large layout専用: サイドバー幅設定の無効化
+        if (layout === 'large') {
+          const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
+          const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
+          const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
+
+          if (sidebarWidthCheckbox) sidebarWidthCheckbox.disabled = isDefault;
+          if (sidebarWidthInput) sidebarWidthInput.disabled = isDefault;
+          if (sidebarWidthContainer) {
+            sidebarWidthContainer.classList.toggle('disabled', isDefault);
+          }
+        }
       };
 
       if (positionEl && heightInput && imageEl) {
@@ -151,6 +164,40 @@ export class PopupManager {
         });
       });
 
+      // サイドバー幅の設定（Large layout限定）
+      if (layout === 'large') {
+        const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
+        const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
+        const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
+
+        if (sidebarWidthCheckbox && sidebarWidthContainer && sidebarWidthInput) {
+          // チェックボックスの変更でコンテナの表示/非表示
+          sidebarWidthCheckbox.addEventListener('change', () => {
+            const isChecked = sidebarWidthCheckbox.checked;
+            sidebarWidthContainer.classList.toggle('d-none', !isChecked);
+            const patch: Partial<Settings> = {
+              large: {
+                ...this.settings.large,
+                sidebarWidth: isChecked ? (parseInt(sidebarWidthInput.value) || 6) : null,
+              }
+            };
+            this.updateSettings(patch, 'サイドバー幅の設定を保存しました', 'サイドバー幅の設定の保存に失敗しました');
+          });
+
+          // 数値入力の変更で設定を保存
+          sidebarWidthInput.addEventListener('change', () => {
+            const value = parseInt(sidebarWidthInput.value);
+            const patch: Partial<Settings> = {
+              large: {
+                ...this.settings.large,
+                sidebarWidth: value,
+              }
+            };
+            this.updateSettings(patch, 'サイドバー幅を保存しました', 'サイドバー幅の保存に失敗しました');
+          });
+        }
+      }
+
       // 初期状態を設定
       updateDisabledState(this.settings[layout].position);
     });
@@ -186,6 +233,7 @@ export class PopupManager {
     this.setupSettingsUI();
     this.setupMoreMenu();
     this.setupInfoTab();
+    this.setupDocumentLinks();
   }
 
   private setupSettingsUI(): void {
@@ -207,6 +255,19 @@ export class PopupManager {
         heightInput.disabled = isDefault;
         if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
         if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
+
+        // Large layout専用: サイドバー幅設定の初期無効化状態を設定
+        if (layout === 'large') {
+          const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
+          const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
+          const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
+
+          if (sidebarWidthCheckbox) sidebarWidthCheckbox.disabled = isDefault;
+          if (sidebarWidthInput) sidebarWidthInput.disabled = isDefault;
+          if (sidebarWidthContainer) {
+            sidebarWidthContainer.classList.toggle('disabled', isDefault);
+          }
+        }
       }
     };
     const setOptions = (layout: Layout): void => {
@@ -220,6 +281,29 @@ export class PopupManager {
     setLayout('medium');
     setOptions('large');
     setOptions('medium');
+
+    // サイドバー幅の初期化（Large layout限定）
+    const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
+    const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
+    const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
+
+    if (sidebarWidthCheckbox && sidebarWidthContainer && sidebarWidthInput) {
+      const largeSettings = this.settings.large;
+      const hasSidebarWidth = largeSettings.sidebarWidth !== null && largeSettings.sidebarWidth !== undefined;
+      const isDefault = largeSettings.position === 'large-default';
+
+      sidebarWidthCheckbox.checked = hasSidebarWidth;
+      sidebarWidthCheckbox.disabled = isDefault;
+      sidebarWidthInput.disabled = isDefault;
+      sidebarWidthContainer.classList.toggle('d-none', !hasSidebarWidth);
+      sidebarWidthContainer.classList.toggle('disabled', isDefault);
+
+      if (hasSidebarWidth) {
+        sidebarWidthInput.value = String(largeSettings.sidebarWidth);
+      } else {
+        sidebarWidthInput.value = '6';
+      }
+    }
   }
 
   private setupMoreMenu(): void {
@@ -253,19 +337,19 @@ export class PopupManager {
   }
 
   private setupInfoTab(): void {
-    const storeLink = document.getElementById('store-link') as HTMLAnchorElement;
+    const storeLink = document.getElementById('store-link') as HTMLAnchorElement | null;
     if (storeLink) {
       storeLink.href = `https://chrome.google.com/webstore/detail/${chrome.runtime.id}`;
       openLinkNewTab(storeLink);
     }
 
-    const extensionLink = document.getElementById('extension-link') as HTMLAnchorElement;
+    const extensionLink = document.getElementById('extension-link') as HTMLAnchorElement | null;
     if (extensionLink) {
       extensionLink.href = `chrome://extensions/?id=${chrome.runtime.id}`;
       openLinkNewTab(extensionLink);
     }
 
-    const issuesLink = document.getElementById('issues-link') as HTMLAnchorElement;
+    const issuesLink = document.getElementById('issues-link') as HTMLAnchorElement | null;
     const issuesHref = this.manifestMetadata.issues_url;
     if (issuesLink && issuesHref) {
       issuesLink.href = issuesHref;
@@ -313,13 +397,59 @@ export class PopupManager {
     const developer = this.manifestMetadata.developer || '不明';
     if (developerName) developerName.textContent = developer;
 
-    const githubLink = document.getElementById('github-link') as HTMLAnchorElement;
+    const githubLink = document.getElementById('github-link') as HTMLAnchorElement | null;
     const githubHref = this.manifestMetadata.github_url;
     if (githubLink && githubHref) {
       githubLink.href = githubHref;
       githubLink.textContent = githubHref;
       openLinkNewTab(githubLink);
     }
+  }
+
+  private setupDocumentLinks(): void {
+    const columnWidthLink = document.getElementById('column-width-link') as HTMLAnchorElement | null;
+    columnWidthLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.navigateToDocumentSection('document-tab', 'docs-word', 'column-width-term');
+    });
+  }
+
+  private navigateToDocumentSection(tabId: string, accordionId?: string, targetId?: string): void {
+    const tabElement = document.getElementById(tabId);
+    if (!tabElement) return;
+
+    tabElement.addEventListener('shown.bs.tab', () => {
+      this.handleAccordionAndScroll(accordionId, targetId);
+    }, { once: true });
+
+    new Tab(tabElement).show();
+  }
+
+  private handleAccordionAndScroll(accordionId?: string, targetId?: string): void {
+    if (!accordionId) {
+      this.scrollToElement(targetId);
+      return;
+    }
+
+    const accordionElement = document.getElementById(accordionId);
+    if (!accordionElement) return;
+
+    if (accordionElement.classList.contains('show')) {
+      this.scrollToElement(targetId);
+      return;
+    }
+
+    accordionElement.addEventListener('shown.bs.collapse', () => {
+      this.scrollToElement(targetId);
+    }, { once: true });
+
+    new Collapse(accordionElement, { toggle: true });
+  }
+
+  private scrollToElement(elementId?: string): void {
+    if (!elementId) return;
+    const element = document.getElementById(elementId);
+    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   private showMessage(message: string, timestamp: string = dateTime()) {
