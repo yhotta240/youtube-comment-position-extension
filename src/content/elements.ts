@@ -1,6 +1,7 @@
 import { YoutubeElements } from "./types";
 
 export const getElements = (): YoutubeElements => ({
+  ytdWatchFlexy: document.querySelector<HTMLElement>("ytd-watch-flexy"),
   columns: document.querySelector<HTMLElement>("#columns.style-scope.ytd-watch-flexy"),
   primary: document.querySelector<HTMLElement>("#primary.style-scope.ytd-watch-flexy"),
   primaryInner: document.querySelector<HTMLElement>("#primary-inner.style-scope.ytd-watch-flexy"),
@@ -14,7 +15,7 @@ export const getElements = (): YoutubeElements => ({
   cinematics: document.querySelector<HTMLElement>("#cinematics.style-scope.ytd-watch-flexy"),
   metaData: document.querySelector<HTMLElement>("#below > ytd-watch-metadata"),
   ytdApp: document.querySelector<HTMLElement>('ytd-app'),
-  ytdWatchFlexy: document.querySelector<HTMLElement>("ytd-watch-flexy"),
   fullBleed: document.querySelector<HTMLElement>("#full-bleed-container.style-scope.ytd-watch-flexy"),
   video: document.querySelector<HTMLVideoElement>("video.html5-main-video"),
+  dragHandle: document.querySelector<HTMLElement>('.ycp-drag-handle'),
 });

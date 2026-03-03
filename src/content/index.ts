@@ -1,16 +1,18 @@
 import "./content.css";
-import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
+import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl, settings } from "./state";
 import { getElements } from "./elements";
 import { isLargeScreenLayout } from "./utils/height";
 import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
-import { applySidebarWidth } from "./utils/styles";
 import { YoutubeElements } from "./types";
+import { applySecondaryResizeSettings } from "./managers/secondary-resize";
+import { Settings } from "settings";
 
 function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
   applyPlayerSticky(elements, isLargeScreen);
   makeStickyComments(isLargeScreen);
+  applySecondaryResizeSettings();
 }
 
 const observer = new MutationObserver(() => {
@@ -51,23 +53,21 @@ const observer = new MutationObserver(() => {
   await loadSettings();
   if (isEnabled) {
     observer.observe(document.body, { childList: true, subtree: true });
-    window.addEventListener('yt-navigate-finish', () => {
-      requestAnimationFrame(() => {
-        applySidebarWidth();
-      });
-    });
-    // ウィンドウリサイズ時にサイドバー幅を再計算
-    let resizeTimeout: number;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = window.setTimeout(() => {
-        const isLargeScreen = isLargeScreenLayout();
-        if (isLargeScreen) {
-          applySidebarWidth();
-        }
-      }, 100);
-    });
   } else {
     observer.disconnect();
   }
 })();
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'local') return;
+
+  if (changes.settings?.newValue) {
+    const newSettings = changes.settings.newValue as Settings;
+    const oldSettings = changes.settings.oldValue as Settings;
+
+    // largeSidebarEnabledが変更された場合
+    if (newSettings?.large?.largeSidebarEnabled !== oldSettings?.large?.largeSidebarEnabled) {
+      applySecondaryResizeSettings();
+    }
+  }
+});

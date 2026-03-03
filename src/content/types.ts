@@ -1,4 +1,5 @@
 export interface YoutubeElements {
+  ytdWatchFlexy: HTMLElement | null;
   columns: HTMLElement | null;
   primary: HTMLElement | null;
   primaryInner: HTMLElement | null;
@@ -12,7 +13,7 @@ export interface YoutubeElements {
   cinematics: HTMLElement | null;
   metaData: HTMLElement | null;
   ytdApp: HTMLElement | null;
-  ytdWatchFlexy: HTMLElement | null;
   fullBleed: HTMLElement | null;
   video: HTMLVideoElement | null;
+  dragHandle: HTMLElement | null;
 }
