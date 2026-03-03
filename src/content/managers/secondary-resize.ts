@@ -27,7 +27,6 @@ export function handleFullscreenResize(): void {
 }
 
 export async function insertDragHandle(): Promise<void> {
-  console.log('[youtube-smart-tabs] Inserting drag handle for secondary resize');
   const { secondaryInner, dragHandle: exist } = getElements();
   if (exist) return;
   const dragHandle = document.createElement('div');
@@ -46,7 +45,6 @@ export async function applySecondaryResizeSettings(): Promise<void> {
   const enabled = getLayoutSettings().largeSidebarEnabled;
   updateDragHandleVisibility(enabled);
 
-  console.log(`[youtube-smart-tabs] Applying secondary resize settings. Enabled: ${enabled}`);
   if (!enabled) {
     clearSecondaryWidths();
     return;
@@ -148,9 +146,7 @@ function handleDrag(): void {
       const minPrimaryWidth = 300;
       const maxSecondaryWidth = Math.max(columnsWidth - minPrimaryWidth, minSecondaryWidth);
       const clamped = Math.min(Math.max(Math.round(secondaryWidth), minSecondaryWidth), maxSecondaryWidth);
-      await chrome.storage.local.set({ ycpSecondaryWidth: clamped }, () => {
-        console.log(`[youtube-smart-tabs] Saved secondary width: ${clamped}px`);
-      });
+      await chrome.storage.local.set({ ycpSecondaryWidth: clamped });
       storageState.secondaryWidth = clamped;
       window.dispatchEvent(new Event('resize'));
     })();
