@@ -107,17 +107,10 @@ export class PopupManager {
         if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
         if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
 
-        // Large layout専用: サイドバー幅設定の無効化
+        // Large layout専用: サイドバー幅調整の無効化
         if (layout === 'large') {
-          const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
-          const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
-          const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
-
-          if (sidebarWidthCheckbox) sidebarWidthCheckbox.disabled = isDefault;
-          if (sidebarWidthInput) sidebarWidthInput.disabled = isDefault;
-          if (sidebarWidthContainer) {
-            sidebarWidthContainer.classList.toggle('disabled', isDefault);
-          }
+          const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
+          if (sidebarResizeEnabled) sidebarResizeEnabled.disabled = isDefault;
         }
       };
 
@@ -149,9 +142,17 @@ export class PopupManager {
       }
 
       // オプション設定のイベントリスナー
-      const optionIds = ['stickyPlayer', 'stickyComments'] as const;
+      const optionIds = ['stickyPlayer', 'stickyComments', 'largeSidebarEnabled'] as const;
       optionIds.forEach(optionId => {
-        const optionEl = document.getElementById(`${layout}-sticky-${optionId === 'stickyPlayer' ? 'player' : 'comments'}`) as HTMLInputElement | null;
+        let optionEl: HTMLInputElement | null = null;
+        if (optionId === 'stickyPlayer') {
+          optionEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
+        } else if (optionId === 'stickyComments') {
+          optionEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
+        } else if (optionId === 'largeSidebarEnabled' && layout === 'large') {
+          optionEl = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
+        }
+
         optionEl?.addEventListener('change', () => {
           const value = optionEl.checked;
           const patch: Partial<Settings> = {
@@ -161,42 +162,16 @@ export class PopupManager {
             }
           };
           this.updateSettings(patch, 'オプション設定を保存しました', 'オプション設定の保存に失敗しました');
+          
+          // largeSidebarEnabledの場合、説明の表示/非表示を切り替え
+          if (optionId === 'largeSidebarEnabled') {
+            const description = document.getElementById('large-sidebar-resize-description') as HTMLElement | null;
+            if (description) {
+              description.classList.toggle('d-none', !value);
+            }
+          }
         });
       });
-
-      // サイドバー幅の設定（Large layout限定）
-      if (layout === 'large') {
-        const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
-        const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
-        const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
-
-        if (sidebarWidthCheckbox && sidebarWidthContainer && sidebarWidthInput) {
-          // チェックボックスの変更でコンテナの表示/非表示
-          sidebarWidthCheckbox.addEventListener('change', () => {
-            const isChecked = sidebarWidthCheckbox.checked;
-            sidebarWidthContainer.classList.toggle('d-none', !isChecked);
-            const patch: Partial<Settings> = {
-              large: {
-                ...this.settings.large,
-                sidebarWidth: isChecked ? (parseInt(sidebarWidthInput.value) || 6) : null,
-              }
-            };
-            this.updateSettings(patch, 'サイドバー幅の設定を保存しました', 'サイドバー幅の設定の保存に失敗しました');
-          });
-
-          // 数値入力の変更で設定を保存
-          sidebarWidthInput.addEventListener('change', () => {
-            const value = parseInt(sidebarWidthInput.value);
-            const patch: Partial<Settings> = {
-              large: {
-                ...this.settings.large,
-                sidebarWidth: value,
-              }
-            };
-            this.updateSettings(patch, 'サイドバー幅を保存しました', 'サイドバー幅の保存に失敗しました');
-          });
-        }
-      }
 
       // 初期状態を設定
       updateDisabledState(this.settings[layout].position);
@@ -256,17 +231,10 @@ export class PopupManager {
         if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
         if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
 
-        // Large layout専用: サイドバー幅設定の初期無効化状態を設定
+        // Large layout専用: サイドバー幅調整の初期無効化状態を設定
         if (layout === 'large') {
-          const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
-          const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
-          const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
-
-          if (sidebarWidthCheckbox) sidebarWidthCheckbox.disabled = isDefault;
-          if (sidebarWidthInput) sidebarWidthInput.disabled = isDefault;
-          if (sidebarWidthContainer) {
-            sidebarWidthContainer.classList.toggle('disabled', isDefault);
-          }
+          const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
+          if (sidebarResizeEnabled) sidebarResizeEnabled.disabled = isDefault;
         }
       }
     };
@@ -276,34 +244,24 @@ export class PopupManager {
       const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
       if (stickyPlayerEl) stickyPlayerEl.checked = layoutSettings.stickyPlayer;
       if (stickyCommentsEl) stickyCommentsEl.checked = layoutSettings.stickyComments;
+
+      // Large layout専用: サイドバー幅調整の初期化
+      if (layout === 'large') {
+        const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
+        const description = document.getElementById('large-sidebar-resize-description') as HTMLElement | null;
+        if (sidebarResizeEnabled) {
+          sidebarResizeEnabled.checked = layoutSettings.largeSidebarEnabled || false;
+          // 説明の表示/非表示を初期化
+          if (description) {
+            description.classList.toggle('d-none', !sidebarResizeEnabled.checked);
+          }
+        }
+      }
     };
     setLayout('large');
     setLayout('medium');
     setOptions('large');
     setOptions('medium');
-
-    // サイドバー幅の初期化（Large layout限定）
-    const sidebarWidthCheckbox = document.getElementById('large-sidebar-width-checkbox') as HTMLInputElement | null;
-    const sidebarWidthContainer = document.getElementById('large-sidebar-width-container') as HTMLElement | null;
-    const sidebarWidthInput = document.getElementById('large-sidebar-width-input') as HTMLInputElement | null;
-
-    if (sidebarWidthCheckbox && sidebarWidthContainer && sidebarWidthInput) {
-      const largeSettings = this.settings.large;
-      const hasSidebarWidth = largeSettings.sidebarWidth !== null && largeSettings.sidebarWidth !== undefined;
-      const isDefault = largeSettings.position === 'large-default';
-
-      sidebarWidthCheckbox.checked = hasSidebarWidth;
-      sidebarWidthCheckbox.disabled = isDefault;
-      sidebarWidthInput.disabled = isDefault;
-      sidebarWidthContainer.classList.toggle('d-none', !hasSidebarWidth);
-      sidebarWidthContainer.classList.toggle('disabled', isDefault);
-
-      if (hasSidebarWidth) {
-        sidebarWidthInput.value = String(largeSettings.sidebarWidth);
-      } else {
-        sidebarWidthInput.value = '6';
-      }
-    }
   }
 
   private setupMoreMenu(): void {

@@ -134,8 +134,3 @@ html {
 svg {
   stroke: currentColor;
 }
-
-#large-sidebar-width-container.disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}

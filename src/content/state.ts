@@ -52,6 +52,6 @@ export function getLayoutSettings() {
     mediumLayoutPosition: medium.position,
     largeHeight: large.height,
     mediumHeight: medium.height,
-    largeSidebarWidth: large.sidebarWidth,
+    largeSidebarEnabled: large.largeSidebarEnabled || false,
   };
 }

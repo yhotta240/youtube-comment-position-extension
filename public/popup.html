@@ -149,24 +149,15 @@
             <label class="form-check-label text-nowrap" for="large-sticky-comments">
               コメントのヘッダを固定する（オプション）
             </label><br>
-            <input class="form-check-input large-layout-option" type="checkbox" data-id="sidebarWidth" value=""
-              id="large-sidebar-width-checkbox">
-            <label class="form-check-label text-nowrap" for="large-sidebar-width-checkbox">
-              サイドバーの幅を設定する（β機能）
+            <input class="form-check-input large-layout-option" type="checkbox" data-id="largeSidebarEnabled" value=""
+              id="large-sidebar-resize-enabled">
+            <label class="form-check-label text-nowrap" for="large-sidebar-resize-enabled">
+              サイドバーの幅を調整する（β機能）
             </label>
-            <div id="large-sidebar-width-container" class="d-flex align-items-center justify-content-start">
-              <label for="large-sidebar-width-input" class="my-auto form-label text-nowrap">サイドバー幅：</label>
-              <div class="d-flex align-items-center text-nowrap gap-1">
-                （
-                <input class="form-control form-control-sm" type="number" id="large-sidebar-width-input" min="1"
-                  max="11">
-                /12）×
-                <a href="#" id="column-width-link" class="text-decoration-none">カラム幅</a>
-                − 余白 px
-              </div>
+            <div id="large-sidebar-resize-description" class="mt-1 text-muted small d-none">
+              YouTube動画ページでサイドバーとコメント欄の境界をドラッグして幅を調整できます
             </div>
           </div>
-
         </li>
         <!-- Medium レイアウト: -->
         <li class="list-group-item">
