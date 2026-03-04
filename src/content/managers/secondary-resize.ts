@@ -21,7 +21,7 @@ export function handleFullscreenResize(): void {
     if (!ev.isTrusted) return;
     if (resizeTimeout) clearTimeout(resizeTimeout);
     resizeTimeout = window.setTimeout(() => {
-      if (isLargeScreenLayout()) setupSecondaryRatio();
+      if (isLargeScreenLayout()) setupSecondaryWidths();
     }, 200);
   });
 }
@@ -51,7 +51,7 @@ export async function applySecondaryResizeSettings(): Promise<void> {
   }
 
   await insertDragHandle();
-  await setupSecondaryRatio();
+  await setupSecondaryWidths();
   handleFullscreenResize();
 }
 
@@ -85,13 +85,20 @@ export function clearSecondaryWidths(): void {
   window.dispatchEvent(new Event('resize'));
 }
 
-export async function setupSecondaryRatio(): Promise<void> {
+export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
   const { columns, primary, secondary, ytdWatchFlexy, video } = getElements();
   if (!columns || !primary || !secondary || !ytdWatchFlexy || !video) return;
   if (!getLayoutSettings().largeSidebarEnabled) {
     clearSecondaryWidths();
     return;
   }
+
+  // columns.clientWidth が0の場合は DOM が完全にレンダリングされていないのでリトライ
+  if (columns.clientWidth === 0 && retryCount < 10) {
+    setTimeout(() => setupSecondaryWidths(retryCount + 1), 100);
+    return;
+  }
+
   try {
     const data = await chrome.storage.local.get(['ycpSecondaryWidth']);
     const savedWidth = data.ycpSecondaryWidth as number | null;
@@ -111,7 +118,7 @@ export async function setupSecondaryRatio(): Promise<void> {
       clearSecondaryWidths();
     }
   } catch (err) {
-    console.error('[youtube-smart-tabs] setupSecondaryRatio error', err);
+    console.error('[youtube-smart-tabs] setupSecondaryWidths error', err);
   }
 }
 
