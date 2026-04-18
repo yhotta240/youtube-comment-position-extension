@@ -21,7 +21,10 @@ const observer = new MutationObserver(() => {
 
   const isLargeScreen = isLargeScreenLayout();
 
-  if (!isReloaded) {
+  const url = new URL(window.location.href);
+  const currentVideoId = url.searchParams.get("v");
+
+  if (!isReloaded && currentVideoId) {
     handleFirstRender(elements, isLargeScreen);
     applyLayout(elements, isLargeScreen);
     setIsReloaded(true);
@@ -34,9 +37,6 @@ const observer = new MutationObserver(() => {
       applyLayout(elements, isLargeScreen);
     }
   }
-
-  const url = new URL(window.location.href);
-  const currentVideoId = url.searchParams.get("v");
 
   if (preUrl !== currentVideoId) {
     handleFirstRender(elements, isLargeScreen);
