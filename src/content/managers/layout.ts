@@ -6,7 +6,7 @@ function isFullscreen() {
   return document.fullscreenElement;
 }
 
-export function insertSecondary(elements: YoutubeElements): void {
+export function insertCommentsSecondary(elements: YoutubeElements): void {
   const { isLargeDefaultPosition, isLargeSecondary, isLargeSecondaryBottom, isLargeSwitch } = getLayoutSettings();
   const { comments, related, secondary, secondaryInner, below } = elements;
 
@@ -33,7 +33,7 @@ export function insertSecondary(elements: YoutubeElements): void {
   }
 }
 
-export function insertPrimary(elements: YoutubeElements): void {
+export function insertCommentsPrimary(elements: YoutubeElements): void {
   if (isFullscreen()) return;
 
   const { isMediumDefaultPosition, isMediumCommentsUnderPlayer, isMediumUndermetadata } = getLayoutSettings();
@@ -60,8 +60,8 @@ export function insertPrimary(elements: YoutubeElements): void {
 
 export function handleFirstRender(elements: YoutubeElements, isLargeScreen: boolean): void {
   if (isLargeScreen) {
-    insertSecondary(elements);
+    insertCommentsSecondary(elements);
   } else {
-    insertPrimary(elements);
+    insertCommentsPrimary(elements);
   }
 }
