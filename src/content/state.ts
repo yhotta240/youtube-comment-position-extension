@@ -46,6 +46,8 @@ export function getLayoutSettings() {
     isLargeStickyPlayer: large.stickyPlayer,
     isLargeStickyComments: large.stickyComments,
     isMediumDefaultPosition: medium.position === "medium-default",
+    isMediumCommentsUnderPlayer: medium.position === "medium-underplayer",
+    isMediumUndermetadata: medium.position === "medium-undermetadata",
     isMediumStickyPlayer: medium.stickyPlayer,
     isMediumStickyComments: medium.stickyComments,
     largeLayoutPosition: large.position,
