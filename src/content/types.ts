@@ -16,4 +16,7 @@ export interface YoutubeElements {
   fullBleed: HTMLElement | null;
   video: HTMLVideoElement | null;
   dragHandle: HTMLElement | null;
+  belowBoxes: NodeListOf<HTMLElement> | null;
+  belowFirstBox: HTMLElement | null;
+  belowSecondBox: HTMLElement | null;
 }

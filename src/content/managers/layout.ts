@@ -36,29 +36,25 @@ export function insertSecondary(elements: YoutubeElements): void {
 export function insertPrimary(elements: YoutubeElements): void {
   if (isFullscreen()) return;
 
-  const { isMediumDefaultPosition, mediumLayoutPosition } = getLayoutSettings();
-  const { comments, metaData, below, related } = elements;
+  const { isMediumDefaultPosition, isMediumCommentsUnderPlayer, isMediumUndermetadata } = getLayoutSettings();
+  const { comments, metaData, below, related, belowFirstBox, belowSecondBox } = elements;
 
-  if (!comments || !metaData || !below || !related) return;
+  if (!comments || !metaData || !below || !related || !belowFirstBox || !belowSecondBox) return;
 
   applyCommentStyles(comments, isMediumDefaultPosition);
 
   if (isMediumDefaultPosition) {
-    below.appendChild(comments);
-    setTimeout(() => {
-      below.insertBefore(related, comments);
-    }, 100);
+    belowSecondBox.appendChild(comments);
     return;
+  } else if (isMediumCommentsUnderPlayer) {
+    below.insertBefore(comments, belowFirstBox);
+  } else if (isMediumUndermetadata) {
+    belowFirstBox.insertAdjacentElement("afterend", comments);
   }
 
-  if (mediumLayoutPosition === "medium-underplayer") {
-    below.insertBefore(comments, metaData);
-  } else if (mediumLayoutPosition === "medium-undermetadata") {
-    below.appendChild(comments);
-  }
-
+  // 意図しない位置に related が移動する可能性を防ぐため，delay を入れてから related を移動する
   setTimeout(() => {
-    below.appendChild(related);
+    belowSecondBox.appendChild(related);
   }, 100);
 }
 
