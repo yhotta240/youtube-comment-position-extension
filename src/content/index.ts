@@ -2,7 +2,7 @@ import "./content.css";
 import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl, settings } from "./state";
 import { getElements } from "./elements";
 import { isLargeScreenLayout } from "./utils/height";
-import { handleFirstRender, insertSecondary, insertPrimary } from "./managers/layout";
+import { handleFirstRender, insertCommentsSecondary, insertCommentsPrimary } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
 import { YoutubeElements } from "./types";
@@ -29,11 +29,11 @@ const observer = new MutationObserver(() => {
     applyLayout(elements, isLargeScreen);
     setIsReloaded(true);
   } else {
-    if (isLargeScreen && preRespWidth === 'medium') {
-      insertSecondary(elements);
+    if (isLargeScreen && preRespWidth === "medium") {
+      insertCommentsSecondary(elements);
       applyLayout(elements, isLargeScreen);
-    } else if (!isLargeScreen && preRespWidth === 'large') {
-      insertPrimary(elements);
+    } else if (!isLargeScreen && preRespWidth === "large") {
+      insertCommentsPrimary(elements);
       applyLayout(elements, isLargeScreen);
     }
   }
@@ -46,7 +46,7 @@ const observer = new MutationObserver(() => {
     setPreUrl(currentVideoId);
   }
 
-  setPreRespWidth(isLargeScreen ? 'large' : 'medium');
+  setPreRespWidth(isLargeScreen ? "large" : "medium");
 });
 
 (async () => {
@@ -59,7 +59,7 @@ const observer = new MutationObserver(() => {
 })();
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== 'local') return;
+  if (areaName !== "local") return;
 
   if (changes.settings?.newValue) {
     const newSettings = changes.settings.newValue as Settings;

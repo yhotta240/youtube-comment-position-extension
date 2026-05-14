@@ -6,8 +6,8 @@ function isFullscreen() {
   return document.fullscreenElement;
 }
 
-export function insertSecondary(elements: YoutubeElements): void {
-  const { isLargeDefaultPosition, largeLayoutPosition } = getLayoutSettings();
+export function insertCommentsSecondary(elements: YoutubeElements): void {
+  const { isLargeDefaultPosition, isLargeSecondary, isLargeSecondaryBottom, isLargeSwitch } = getLayoutSettings();
   const { comments, related, secondary, secondaryInner, below } = elements;
 
   if (!comments || !related || !secondary || !secondaryInner || !below) return;
@@ -15,16 +15,16 @@ export function insertSecondary(elements: YoutubeElements): void {
   applyCommentStyles(comments, isLargeDefaultPosition);
 
   if (!isLargeDefaultPosition) {
-    if (largeLayoutPosition === "large-secondary") {
+    if (isLargeSecondary) {
       secondary.prepend(comments);
-    } else if (largeLayoutPosition === "large-secondary-bottom") {
+    } else if (isLargeSecondaryBottom) {
       if (secondaryInner.contains(related)) {
         secondaryInner.insertBefore(comments, related);
       } else {
         secondaryInner.appendChild(comments);
         secondaryInner.appendChild(related);
       }
-    } else if (largeLayoutPosition === "large-switch") {
+    } else if (isLargeSwitch) {
       secondaryInner.appendChild(comments);
       setTimeout(() => {
         below.appendChild(related);
@@ -33,7 +33,7 @@ export function insertSecondary(elements: YoutubeElements): void {
   }
 }
 
-export function insertPrimary(elements: YoutubeElements): void {
+export function insertCommentsPrimary(elements: YoutubeElements): void {
   if (isFullscreen()) return;
 
   const { isMediumDefaultPosition, isMediumCommentsUnderPlayer, isMediumUndermetadata } = getLayoutSettings();
@@ -60,8 +60,8 @@ export function insertPrimary(elements: YoutubeElements): void {
 
 export function handleFirstRender(elements: YoutubeElements, isLargeScreen: boolean): void {
   if (isLargeScreen) {
-    insertSecondary(elements);
+    insertCommentsSecondary(elements);
   } else {
-    insertPrimary(elements);
+    insertCommentsPrimary(elements);
   }
 }
