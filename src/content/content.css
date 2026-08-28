@@ -55,7 +55,7 @@ ytd-watch-flexy.ycp-secondary-resize-enabled .ycp-drag-handle {
 }
 
 .ycp-drag-handle.dragging {
-  background-color: var(--yt-spec-call-to-action-hover) !important;
+  background-color: var(--yt-sys-color-baseline--call-to-action-hover) !important;
 }
 
 #primary.ycp-custom-sidebar-width {
