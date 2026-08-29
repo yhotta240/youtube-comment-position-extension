@@ -4,16 +4,16 @@ import { getElements } from "../elements";
 export function applyCommentStyles(comments: HTMLElement, isDefaultPosition: boolean): void {
   comments.classList.toggle('ycp-comments-custom', !isDefaultPosition);
 
-  if (!isDefaultPosition) {
+  if (isDefaultPosition) {
+    comments.style.removeProperty('--ycp-comments-height');
+  } else {
     comments.style.setProperty('--ycp-comments-height', `${calculateHeight()}px`);
   }
 }
 
 export function hideCinematics(shouldHide: boolean): void {
   const cinematics = getElements().cinematics;
-  if (cinematics && shouldHide && !cinematics.classList.contains('ycp-hidden')) {
-    cinematics.classList.add('ycp-hidden');
-  }
+  cinematics?.classList.toggle('ycp-hidden', shouldHide);
 }
 
 export function toggleSticky(target: HTMLElement, shouldSticky: boolean, top: number): void {

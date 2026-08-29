@@ -3,6 +3,41 @@ import { getLayoutSettings } from "../state";
 import { YoutubeElements } from "../types";
 import { applyCommentStyles } from "../utils/styles";
 
+const originalPositionMarkers = new WeakMap<HTMLElement, Comment>();
+
+function rememberOriginalPosition(element: HTMLElement | null): void {
+  if (!element || originalPositionMarkers.has(element) || !element.parentNode) return;
+
+  const marker = document.createComment('ycp-original-position');
+  element.parentNode.insertBefore(marker, element);
+  originalPositionMarkers.set(element, marker);
+}
+
+function restoreOriginalPosition(element: HTMLElement | null): void {
+  if (!element) return;
+
+  const marker = originalPositionMarkers.get(element);
+  const parent = marker?.parentNode;
+  if (!marker || !parent || marker.nextSibling === element) return;
+
+  parent.insertBefore(element, marker.nextSibling);
+}
+
+function rememberOriginalPositions(elements: YoutubeElements): void {
+  rememberOriginalPosition(elements.comments);
+  rememberOriginalPosition(elements.related);
+}
+
+function restoreOriginalPositions(elements: YoutubeElements): void {
+  restoreOriginalPosition(elements.comments);
+  restoreOriginalPosition(elements.related);
+}
+
+export function resetCommentsLayout(elements: YoutubeElements): void {
+  restoreOriginalPositions(elements);
+  if (elements.comments) applyCommentStyles(elements.comments, true);
+}
+
 function isFullscreen() {
   return document.fullscreenElement;
 }
@@ -13,24 +48,25 @@ export function insertCommentsSecondary(elements: YoutubeElements): void {
 
   if (!comments || !related || !secondary || !secondaryInner || !below) return;
 
+  restoreOriginalPositions(elements);
   applyCommentStyles(comments, isLargeDefaultPosition);
 
-  if (!isLargeDefaultPosition) {
-    if (isLargeSecondary) {
-      secondary.prepend(comments);
-    } else if (isLargeSecondaryBottom) {
-      if (secondaryInner.contains(related)) {
-        secondaryInner.insertBefore(comments, related);
-      } else {
-        secondaryInner.appendChild(comments);
-        secondaryInner.appendChild(related);
-      }
-    } else if (isLargeSwitch) {
+  if (isLargeDefaultPosition) return;
+
+  if (isLargeSecondary) {
+    secondary.prepend(comments);
+  } else if (isLargeSecondaryBottom) {
+    if (secondaryInner.contains(related)) {
+      secondaryInner.insertBefore(comments, related);
+    } else {
       secondaryInner.appendChild(comments);
-      setTimeout(() => {
-        below.appendChild(related);
-      }, 100);
+      secondaryInner.appendChild(related);
     }
+  } else if (isLargeSwitch) {
+    secondaryInner.appendChild(comments);
+    setTimeout(() => {
+      below.appendChild(related);
+    }, 100);
   }
 }
 
@@ -42,12 +78,12 @@ export function insertCommentsPrimary(elements: YoutubeElements): void {
 
   if (!comments || !metaData || !below || !related || !belowFirstBox || !belowSecondBox) return;
 
+  restoreOriginalPositions(elements);
   applyCommentStyles(comments, isMediumDefaultPosition);
 
-  if (isMediumDefaultPosition) {
-    belowSecondBox.appendChild(comments);
-    return;
-  } else if (isMediumCommentsUnderPlayer) {
+  if (isMediumDefaultPosition) return;
+
+  if (isMediumCommentsUnderPlayer) {
     below.insertBefore(comments, belowFirstBox);
   } else if (isMediumUndermetadata) {
     belowFirstBox.insertAdjacentElement("afterend", comments);
@@ -60,6 +96,8 @@ export function insertCommentsPrimary(elements: YoutubeElements): void {
 }
 
 export function handleFirstRender(elements: YoutubeElements): void {
+  rememberOriginalPositions(elements);
+
   if (isLargeScreenLayout()) {
     insertCommentsSecondary(elements);
   } else {
