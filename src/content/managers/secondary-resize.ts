@@ -1,15 +1,9 @@
 import { getLayoutSettings } from "content/state";
 import { getElements } from "../elements";
+import { isLargeScreenLayout } from "content/utils/responsive";
 
-export function isLargeScreenLayout(): boolean {
-  return window.innerWidth >= 1017;
-}
-
-const storageState: {
-  secondaryWidth: number | null;
-} = {
-  secondaryWidth: null,
-};
+const MIN_SECONDARY_WIDTH = 300;
+const MIN_PRIMARY_WIDTH = 300;
 
 let resizeTimeout: number | undefined;
 let fullscreenResizeInitialized = false;
@@ -102,15 +96,12 @@ export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
   try {
     const data = await chrome.storage.local.get(['ycpSecondaryWidth']);
     const savedWidth = data.ycpSecondaryWidth as number | null;
-    storageState.secondaryWidth = savedWidth ?? null;
 
     if (savedWidth !== null && savedWidth !== undefined) {
       const columnsWidth = columns.clientWidth;
-      const minSecondaryWidth = 300;
-      const minPrimaryWidth = 300;
-      const maxSecondaryWidth = Math.max(columnsWidth - minPrimaryWidth, minSecondaryWidth);
+      const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
       let secondaryWidth = Math.floor(savedWidth);
-      secondaryWidth = Math.min(Math.max(secondaryWidth, minSecondaryWidth), maxSecondaryWidth);
+      secondaryWidth = Math.min(Math.max(secondaryWidth, MIN_SECONDARY_WIDTH), maxSecondaryWidth);
       const primaryWidth = Math.max(columnsWidth - secondaryWidth, 0);
       applySecondaryWidths(columnsWidth, primaryWidth, { primary, secondary, ytdWatchFlexy, video });
       window.dispatchEvent(new Event('resize'));
@@ -118,7 +109,7 @@ export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
       clearSecondaryWidths();
     }
   } catch (err) {
-    console.error('[youtube-smart-tabs] setupSecondaryWidths error', err);
+    console.error('[youtube-comment-position] setupSecondaryWidths error', err);
   }
 }
 
@@ -129,9 +120,6 @@ function handleDrag(): void {
   if (!columns || !primary || !secondary || !dragHandle || !ytdWatchFlexy || !video) return;
   if (dragListenersInitialized) return;
   dragListenersInitialized = true;
-
-  const minSecondaryWidth = 300;
-  const minPrimaryWidth = 300;
 
   const start = (e: PointerEvent) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -149,12 +137,9 @@ function handleDrag(): void {
     (async () => {
       const columnsWidth = columns.clientWidth;
       const secondaryWidth = Math.round(secondary.getBoundingClientRect().width);
-      const minSecondaryWidth = 300;
-      const minPrimaryWidth = 300;
-      const maxSecondaryWidth = Math.max(columnsWidth - minPrimaryWidth, minSecondaryWidth);
-      const clamped = Math.min(Math.max(Math.round(secondaryWidth), minSecondaryWidth), maxSecondaryWidth);
+      const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
+      const clamped = Math.min(Math.max(Math.round(secondaryWidth), MIN_SECONDARY_WIDTH), maxSecondaryWidth);
       await chrome.storage.local.set({ ycpSecondaryWidth: clamped });
-      storageState.secondaryWidth = clamped;
       window.dispatchEvent(new Event('resize'));
     })();
   };
@@ -163,9 +148,9 @@ function handleDrag(): void {
     if (!isDragging) return;
     const rect = columns.getBoundingClientRect();
     const columnsWidth = columns.clientWidth;
-    const maxSecondaryWidth = Math.max(columnsWidth - minPrimaryWidth, minSecondaryWidth);
+    const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
     let secondaryWidth = rect.right - clientX;
-    secondaryWidth = Math.min(Math.max(secondaryWidth, minSecondaryWidth), maxSecondaryWidth);
+    secondaryWidth = Math.min(Math.max(secondaryWidth, MIN_SECONDARY_WIDTH), maxSecondaryWidth);
     const primaryWidth = columnsWidth - secondaryWidth;
     applySecondaryWidths(columnsWidth, primaryWidth, { primary, secondary, ytdWatchFlexy, video });
   };

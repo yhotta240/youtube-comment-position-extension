@@ -1,7 +1,9 @@
 import { getLayoutSettings } from "../state";
 import { getElements } from "../elements";
+import { isLargeScreenLayout } from "content/utils/responsive";
 
-export function makeStickyComments(isLargeScreen: boolean): void {
+export function makeStickyComments(): void {
+  const isLargeScreen = isLargeScreenLayout();
   const { isLargeDefaultPosition, isLargeStickyComments, isMediumDefaultPosition, isMediumStickyComments } = getLayoutSettings();
 
   const shouldSticky =

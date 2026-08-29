@@ -1,3 +1,4 @@
+import { isLargeScreenLayout } from "content/utils/responsive";
 import { getLayoutSettings } from "../state";
 import { YoutubeElements } from "../types";
 import { applyCommentStyles } from "../utils/styles";
@@ -58,8 +59,8 @@ export function insertCommentsPrimary(elements: YoutubeElements): void {
   }, 100);
 }
 
-export function handleFirstRender(elements: YoutubeElements, isLargeScreen: boolean): void {
-  if (isLargeScreen) {
+export function handleFirstRender(elements: YoutubeElements): void {
+  if (isLargeScreenLayout()) {
     insertCommentsSecondary(elements);
   } else {
     insertCommentsPrimary(elements);

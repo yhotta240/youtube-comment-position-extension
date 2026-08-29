@@ -6,7 +6,7 @@ import { openLinkNewTab } from '../utils/dom';
 import { getSiteAccessText } from '../utils/permissions';
 import { DEFAULT_SETTINGS, getSettings, IMG_MAP, isEnabled, Layout, LayoutSetting, setEnabled, setSettings, Settings } from '../settings';
 import meta from '../../public/manifest.meta.json';
-import { applyTheme, setupThemeMenu, Theme } from './components/theme';
+import { setupThemeMenu, Theme } from './components/theme';
 import { initShareMenu, SharePlatform } from './components/share';
 
 type ManifestMetadata = {
@@ -65,12 +65,7 @@ export class PopupManager {
 
     // テーマ設定のイベントリスナー
     setupThemeMenu((value: Theme) => {
-      try {
-        applyTheme(value);
-        this.showMessage(`テーマを ${value} に変更しました`);
-      } catch (e) {
-        this.showMessage('テーマ設定の保存に失敗しました');
-      }
+      this.showMessage(`テーマを ${value} に変更しました`);
     });
 
     // シェアメニューの初期化
@@ -142,18 +137,20 @@ export class PopupManager {
       }
 
       // オプション設定のイベントリスナー
-      const optionIds = ['stickyPlayer', 'stickyComments', 'largeSidebarEnabled'] as const;
-      optionIds.forEach(optionId => {
-        let optionEl: HTMLInputElement | null = null;
-        if (optionId === 'stickyPlayer') {
-          optionEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
-        } else if (optionId === 'stickyComments') {
-          optionEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
-        } else if (optionId === 'largeSidebarEnabled' && layout === 'large') {
-          optionEl = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
-        }
+      type OptionId = 'stickyPlayer' | 'stickyComments' | 'largeSidebarEnabled';
+      const optionConfigs: Array<{ id: OptionId; elementId: string }> = [
+        { id: 'stickyPlayer', elementId: `${layout}-sticky-player` },
+        { id: 'stickyComments', elementId: `${layout}-sticky-comments` },
+      ];
+      if (layout === 'large') {
+        optionConfigs.push({ id: 'largeSidebarEnabled', elementId: 'large-sidebar-resize-enabled' });
+      }
 
-        optionEl?.addEventListener('change', () => {
+      optionConfigs.forEach(({ id: optionId, elementId }) => {
+        const optionEl = document.getElementById(elementId) as HTMLInputElement | null;
+        if (!optionEl) return;
+
+        optionEl.addEventListener('change', () => {
           const value = optionEl.checked;
           const patch: Partial<Settings> = {
             [layout]: {
