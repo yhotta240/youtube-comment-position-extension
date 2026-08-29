@@ -1,7 +1,7 @@
 import "./content.css";
 import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl, settings } from "./state";
 import { getElements } from "./elements";
-import { isLargeScreenLayout } from "./utils/height";
+import { isLargeScreenLayout } from "./utils/responsive";
 import { handleFirstRender, insertCommentsSecondary, insertCommentsPrimary } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
@@ -9,9 +9,9 @@ import { YoutubeElements } from "./types";
 import { applySecondaryResizeSettings } from "./managers/secondary-resize";
 import { Settings } from "settings";
 
-function applyLayout(elements: YoutubeElements, isLargeScreen: boolean): void {
-  applyPlayerSticky(elements, isLargeScreen);
-  makeStickyComments(isLargeScreen);
+function applyLayout(elements: YoutubeElements): void {
+  applyPlayerSticky(elements);
+  makeStickyComments();
   applySecondaryResizeSettings();
 }
 
@@ -24,28 +24,24 @@ const observer = new MutationObserver(() => {
   const url = new URL(window.location.href);
   const currentVideoId = url.searchParams.get("v");
 
-  if (!isReloaded && currentVideoId) {
-    handleFirstRender(elements, isLargeScreen);
-    applyLayout(elements, isLargeScreen);
-    setIsReloaded(true);
+  const isInitialRender = !isReloaded && Boolean(currentVideoId);
+  const isVideoChanged = preUrl !== currentVideoId;
+
+  if (isInitialRender || isVideoChanged) {
+    handleFirstRender(elements);
+    applyLayout(elements);
+    if (isInitialRender) setIsReloaded(true);
   } else {
     if (isLargeScreen && preRespWidth === "medium") {
       insertCommentsSecondary(elements);
-      applyLayout(elements, isLargeScreen);
+      applyLayout(elements);
     } else if (!isLargeScreen && preRespWidth === "large") {
       insertCommentsPrimary(elements);
-      applyLayout(elements, isLargeScreen);
+      applyLayout(elements);
     }
   }
 
-  if (preUrl !== currentVideoId) {
-    handleFirstRender(elements, isLargeScreen);
-    applyLayout(elements, isLargeScreen);
-    setPreUrl(currentVideoId);
-  } else {
-    setPreUrl(currentVideoId);
-  }
-
+  setPreUrl(currentVideoId);
   setPreRespWidth(isLargeScreen ? "large" : "medium");
 });
 

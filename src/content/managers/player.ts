@@ -1,8 +1,10 @@
+import { isLargeScreenLayout } from "content/utils/responsive";
 import { getLayoutSettings } from "../state";
 import { YoutubeElements } from "../types";
 import { hideCinematics, toggleSticky } from "../utils/styles";
 
-export function applyPlayerSticky(elements: YoutubeElements, isLargeScreen: boolean): void {
+export function applyPlayerSticky(elements: YoutubeElements): void {
+  const isLargeScreen = isLargeScreenLayout();
   const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = getLayoutSettings();
   const { player, ytdWatchFlexy, fullBleed } = elements;
 
