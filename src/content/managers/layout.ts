@@ -4,6 +4,22 @@ import { YoutubeElements } from "../types";
 import { applyCommentStyles } from "../utils/styles";
 
 const originalPositionMarkers = new WeakMap<HTMLElement, Comment>();
+let relatedMoveTimer: number | undefined;
+
+function cancelRelatedMove(): void {
+  if (relatedMoveTimer === undefined) return;
+
+  clearTimeout(relatedMoveTimer);
+  relatedMoveTimer = undefined;
+}
+
+function scheduleRelatedMove(related: HTMLElement, target: HTMLElement): void {
+  cancelRelatedMove();
+  relatedMoveTimer = window.setTimeout(() => {
+    target.appendChild(related);
+    relatedMoveTimer = undefined;
+  }, 100);
+}
 
 function rememberOriginalPosition(element: HTMLElement | null): void {
   if (!element || originalPositionMarkers.has(element) || !element.parentNode) return;
@@ -29,6 +45,7 @@ function rememberOriginalPositions(elements: YoutubeElements): void {
 }
 
 function restoreOriginalPositions(elements: YoutubeElements): void {
+  cancelRelatedMove();
   restoreOriginalPosition(elements.comments);
   restoreOriginalPosition(elements.related);
 }
@@ -64,9 +81,7 @@ export function insertCommentsSecondary(elements: YoutubeElements): void {
     }
   } else if (isLargeSwitch) {
     secondaryInner.appendChild(comments);
-    setTimeout(() => {
-      below.appendChild(related);
-    }, 100);
+    scheduleRelatedMove(related, below);
   }
 }
 
@@ -90,9 +105,7 @@ export function insertCommentsPrimary(elements: YoutubeElements): void {
   }
 
   // 意図しない位置に related が移動する可能性を防ぐため，delay を入れてから related を移動する
-  setTimeout(() => {
-    belowSecondBox.appendChild(related);
-  }, 100);
+  scheduleRelatedMove(related, belowSecondBox);
 }
 
 export function handleFirstRender(elements: YoutubeElements): void {
