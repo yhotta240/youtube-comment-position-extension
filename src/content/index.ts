@@ -1,23 +1,82 @@
 import "./content.css";
-import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl, settings } from "./state";
+import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
 import { getElements } from "./elements";
 import { isLargeScreenLayout } from "./utils/responsive";
-import { handleFirstRender, insertCommentsSecondary, insertCommentsPrimary } from "./managers/layout";
+import { handleFirstRender, insertCommentsSecondary, insertCommentsPrimary, resetCommentsLayout } from "./managers/layout";
 import { applyPlayerSticky } from "./managers/player";
 import { makeStickyComments } from "./managers/comment";
 import { YoutubeElements } from "./types";
 import { applySecondaryResizeSettings } from "./managers/secondary-resize";
-import { Settings } from "settings";
 
-function applyLayout(elements: YoutubeElements): void {
+let settingsLoaded = false;
+
+function applyOptions(elements: YoutubeElements): void {
   applyPlayerSticky(elements);
   makeStickyComments();
   applySecondaryResizeSettings();
 }
 
+function hasLayoutElements(elements: YoutubeElements): boolean {
+  const hasCommonElements = Boolean(elements.primary && elements.below && elements.secondary && elements.secondaryInner);
+  if (!hasCommonElements) return false;
+
+  if (isLargeScreenLayout()) {
+    return Boolean(elements.comments && elements.related);
+  }
+
+  return Boolean(
+    elements.comments &&
+    elements.metaData &&
+    elements.related &&
+    elements.belowFirstBox &&
+    elements.belowSecondBox &&
+    !document.fullscreenElement
+  );
+}
+
+function getCurrentVideoId(): string | null {
+  return new URL(window.location.href).searchParams.get("v");
+}
+
+function applyCurrentLayout(): void {
+  const elements = getElements();
+  if (!hasLayoutElements(elements)) {
+    setPreUrl(null);
+    setPreRespWidth(null);
+    return;
+  }
+
+  handleFirstRender(elements);
+  applyOptions(elements);
+
+  const currentVideoId = getCurrentVideoId();
+  setIsReloaded(Boolean(currentVideoId));
+  setPreUrl(currentVideoId);
+  setPreRespWidth(isLargeScreenLayout() ? "large" : "medium");
+}
+
+function startObserver(): void {
+  if (!settingsLoaded || !document.body) return;
+
+  observer.observe(document.body, { childList: true, subtree: true });
+  applyCurrentLayout();
+}
+
+function stopObserver(): void {
+  observer.disconnect();
+
+  const elements = getElements();
+  resetCommentsLayout(elements);
+  applyOptions(elements);
+
+  setIsReloaded(false);
+  setPreUrl(null);
+  setPreRespWidth(null);
+}
+
 const observer = new MutationObserver(() => {
   const elements = getElements();
-  if (!elements.primary || !elements.below || !elements.secondary || !elements.secondaryInner) return;
+  if (!hasLayoutElements(elements)) return;
 
   const isLargeScreen = isLargeScreenLayout();
 
@@ -29,15 +88,15 @@ const observer = new MutationObserver(() => {
 
   if (isInitialRender || isVideoChanged) {
     handleFirstRender(elements);
-    applyLayout(elements);
+    applyOptions(elements);
     if (isInitialRender) setIsReloaded(true);
   } else {
     if (isLargeScreen && preRespWidth === "medium") {
       insertCommentsSecondary(elements);
-      applyLayout(elements);
+      applyOptions(elements);
     } else if (!isLargeScreen && preRespWidth === "large") {
       insertCommentsPrimary(elements);
-      applyLayout(elements);
+      applyOptions(elements);
     }
   }
 
@@ -47,10 +106,11 @@ const observer = new MutationObserver(() => {
 
 (async () => {
   await loadSettings();
+  settingsLoaded = true;
   if (isEnabled) {
-    observer.observe(document.body, { childList: true, subtree: true });
+    startObserver();
   } else {
-    observer.disconnect();
+    stopObserver();
   }
 })();
 
@@ -58,12 +118,16 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "local") return;
 
   if (changes.settings?.newValue) {
-    const newSettings = changes.settings.newValue as Settings;
-    const oldSettings = changes.settings.oldValue as Settings;
+    if (!isEnabled) return;
 
-    // largeSidebarEnabledが変更された場合
-    if (newSettings?.large?.largeSidebarEnabled !== oldSettings?.large?.largeSidebarEnabled) {
-      applySecondaryResizeSettings();
+    applyCurrentLayout();
+  }
+
+  if (changes.isEnabled?.newValue !== undefined) {
+    if (changes.isEnabled.newValue === true) {
+      startObserver();
+    } else {
+      stopObserver();
     }
   }
 });

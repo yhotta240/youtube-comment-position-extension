@@ -1,4 +1,4 @@
-import { getLayoutSettings } from "content/state";
+import { getLayoutSettings, isEnabled } from "content/state";
 import { getElements } from "../elements";
 import { isLargeScreenLayout } from "content/utils/responsive";
 
@@ -36,7 +36,7 @@ function updateDragHandleVisibility(enabled: boolean): void {
 }
 
 export async function applySecondaryResizeSettings(): Promise<void> {
-  const enabled = getLayoutSettings().largeSidebarEnabled;
+  const enabled = isEnabled && getLayoutSettings().largeSidebarEnabled;
   updateDragHandleVisibility(enabled);
 
   if (!enabled) {
@@ -82,7 +82,7 @@ export function clearSecondaryWidths(): void {
 export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
   const { columns, primary, secondary, ytdWatchFlexy, video } = getElements();
   if (!columns || !primary || !secondary || !ytdWatchFlexy || !video) return;
-  if (!getLayoutSettings().largeSidebarEnabled) {
+  if (!isEnabled || !getLayoutSettings().largeSidebarEnabled) {
     clearSecondaryWidths();
     return;
   }
@@ -98,6 +98,12 @@ export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
     const savedWidth = data.ycpSecondaryWidth as number | null;
 
     if (savedWidth !== null && savedWidth !== undefined) {
+      // storage の取得中に設定が変更される可能性があるため、適用直前にも再確認する
+      if (!isEnabled || !getLayoutSettings().largeSidebarEnabled) {
+        clearSecondaryWidths();
+        return;
+      }
+
       const columnsWidth = columns.clientWidth;
       const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
       let secondaryWidth = Math.floor(savedWidth);
