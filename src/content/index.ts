@@ -17,7 +17,21 @@ function applyOptions(elements: YoutubeElements): void {
 }
 
 function hasLayoutElements(elements: YoutubeElements): boolean {
-  return Boolean(elements.primary && elements.below && elements.secondary && elements.secondaryInner);
+  const hasCommonElements = Boolean(elements.primary && elements.below && elements.secondary && elements.secondaryInner);
+  if (!hasCommonElements) return false;
+
+  if (isLargeScreenLayout()) {
+    return Boolean(elements.comments && elements.related);
+  }
+
+  return Boolean(
+    elements.comments &&
+    elements.metaData &&
+    elements.related &&
+    elements.belowFirstBox &&
+    elements.belowSecondBox &&
+    !document.fullscreenElement
+  );
 }
 
 function getCurrentVideoId(): string | null {
@@ -26,7 +40,11 @@ function getCurrentVideoId(): string | null {
 
 function applyCurrentLayout(): void {
   const elements = getElements();
-  if (!hasLayoutElements(elements)) return;
+  if (!hasLayoutElements(elements)) {
+    setPreUrl(null);
+    setPreRespWidth(null);
+    return;
+  }
 
   handleFirstRender(elements);
   applyOptions(elements);
