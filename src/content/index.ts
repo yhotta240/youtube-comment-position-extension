@@ -10,7 +10,7 @@ import { applySecondaryResizeSettings } from "./managers/secondary-resize";
 
 let settingsLoaded = false;
 
-function applyLayout(elements: YoutubeElements): void {
+function applyOptions(elements: YoutubeElements): void {
   applyPlayerSticky(elements);
   makeStickyComments();
   applySecondaryResizeSettings();
@@ -29,7 +29,7 @@ function applyCurrentLayout(): void {
   if (!hasLayoutElements(elements)) return;
 
   handleFirstRender(elements);
-  applyLayout(elements);
+  applyOptions(elements);
 
   const currentVideoId = getCurrentVideoId();
   setIsReloaded(Boolean(currentVideoId));
@@ -49,7 +49,7 @@ function stopObserver(): void {
 
   const elements = getElements();
   resetCommentsLayout(elements);
-  applyLayout(elements);
+  applyOptions(elements);
 
   setIsReloaded(false);
   setPreUrl(null);
@@ -70,15 +70,15 @@ const observer = new MutationObserver(() => {
 
   if (isInitialRender || isVideoChanged) {
     handleFirstRender(elements);
-    applyLayout(elements);
+    applyOptions(elements);
     if (isInitialRender) setIsReloaded(true);
   } else {
     if (isLargeScreen && preRespWidth === "medium") {
       insertCommentsSecondary(elements);
-      applyLayout(elements);
+      applyOptions(elements);
     } else if (!isLargeScreen && preRespWidth === "large") {
       insertCommentsPrimary(elements);
-      applyLayout(elements);
+      applyOptions(elements);
     }
   }
 
