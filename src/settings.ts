@@ -50,9 +50,30 @@ export const DEFAULT_SETTINGS: Settings = {
   }
 }
 
+function isCurrentLayoutSetting(value: unknown): value is LayoutSetting {
+  if (typeof value !== "object" || value === null) return false;
+
+  const setting = value as Partial<LayoutSetting>;
+  return (
+    typeof setting.position === "string" && Object.prototype.hasOwnProperty.call(IMG_MAP, setting.position) &&
+    typeof setting.img === "string" &&
+    (typeof setting.height === "number" || setting.height === null) &&
+    typeof setting.stickyPlayer === "boolean" &&
+    typeof setting.stickyComments === "boolean" &&
+    (setting.largeSidebarEnabled === undefined || typeof setting.largeSidebarEnabled === "boolean")
+  );
+}
+
+function isCurrentSettings(value: unknown): value is Settings {
+  if (typeof value !== "object" || value === null) return false;
+
+  const settings = value as Partial<Settings>;
+  return isCurrentLayoutSetting(settings.large) && isCurrentLayoutSetting(settings.medium);
+}
+
 export async function getSettings(): Promise<Settings> {
-  const data = await getStorage<{ settings?: Settings }>('settings');
-  return data.settings ?? DEFAULT_SETTINGS;
+  const data = await getStorage<{ settings?: unknown }>('settings');
+  return isCurrentSettings(data.settings) ? data.settings : DEFAULT_SETTINGS;
 }
 
 export async function isEnabled(): Promise<boolean> {
