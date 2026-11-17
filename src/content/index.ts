@@ -1,5 +1,5 @@
 import "./content.css";
-import { loadSettings, isEnabled, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
+import { loadSettings, isEnabled, settings, preRespWidth, isReloaded, preUrl, setPreRespWidth, setIsReloaded, setPreUrl } from "./state";
 import { getElements } from "./elements";
 import { isLargeScreenLayout } from "./utils/responsive";
 import { handleFirstRender, insertCommentsSecondary, insertCommentsPrimary, resetCommentsLayout } from "./managers/layout";
@@ -9,6 +9,15 @@ import { YoutubeElements } from "./types";
 import { applySecondaryResizeSettings } from "./managers/secondary-resize";
 
 let settingsLoaded = false;
+
+function applyChatBelowSetting(): void {
+  const root = document.documentElement;
+  const enabled = isEnabled && settings.large.largeChatBelow === true;
+  root.classList.toggle('ycp-chat-below', enabled);
+  const height = settings.large.largeChatHeight;
+  if (enabled && typeof height === 'number') root.style.setProperty('--ycp-custom-chat-height', `${Math.max(200, height)}px`);
+  else root.style.removeProperty('--ycp-custom-chat-height');
+}
 
 function applyOptions(elements: YoutubeElements): void {
   applyPlayerSticky(elements);
@@ -107,6 +116,7 @@ const observer = new MutationObserver(() => {
 (async () => {
   await loadSettings();
   settingsLoaded = true;
+  applyChatBelowSetting();
   if (isEnabled) {
     startObserver();
   } else {
@@ -114,8 +124,13 @@ const observer = new MutationObserver(() => {
   }
 })();
 
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message === 'getAutoChatHeight') sendResponse(Math.round(Math.max(200, Math.min(window.innerHeight * 0.4, 400))));
+});
+
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "local") return;
+  if (settingsLoaded && (changes.settings || changes.isEnabled)) applyChatBelowSetting();
 
   if (changes.settings?.newValue) {
     if (!isEnabled) return;

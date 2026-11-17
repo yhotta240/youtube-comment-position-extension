@@ -152,10 +152,19 @@
             <input class="form-check-input large-layout-option" type="checkbox" data-id="largeSidebarEnabled" value=""
               id="large-sidebar-resize-enabled">
             <label class="form-check-label text-nowrap" for="large-sidebar-resize-enabled">
-              サイドバーの幅を調整する（β機能）
-            </label>
+              サイドバーの幅を調整する（オプション）
+            </label><br>
             <div id="large-sidebar-resize-description" class="mt-1 text-muted small d-none">
               動画プレイヤーとサイドバー幅の境界をドラッグして，サイドバーの幅を調整できます<br>
+            </div>
+            <input class="form-check-input" type="checkbox" id="large-chat-below">
+            <label class="form-check-label" for="large-chat-below">
+              チャットを案内の下に表示する（β機能）
+            </label>
+            <div id="large-chat-height-setting" class="d-none d-flex align-items-center mt-1">
+              <label for="large-chat-height" class="form-label mb-0 text-nowrap">チャットの高さ:</label>
+              <input type="number" class="mx-2 form-control form-control-sm" id="large-chat-height" min="200">
+              <span>px</span>
             </div>
           </div>
         </li>
