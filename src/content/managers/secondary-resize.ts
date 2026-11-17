@@ -5,20 +5,20 @@ import { isLargeScreenLayout } from "content/utils/responsive";
 const MIN_SECONDARY_WIDTH = 300;
 const MIN_PRIMARY_WIDTH = 300;
 
-let resizeTimeout: number | undefined;
-let fullscreenResizeInitialized = false;
-
-export function handleFullscreenResize(): void {
-  if (fullscreenResizeInitialized) return;
-  fullscreenResizeInitialized = true;
-  window.addEventListener('resize', (ev: Event) => {
-    if (!ev.isTrusted) return;
-    if (resizeTimeout) clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(() => {
-      if (isLargeScreenLayout()) setupSecondaryWidths();
-    }, 200);
-  });
+function getColumnsWidth(columns: HTMLElement, style = getComputedStyle(columns)): number {
+  return Math.floor(columns.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight));
 }
+
+let resizeTimeout: number | undefined;
+let lastColumnsWidth: number | undefined;
+const columnsObserver = new ResizeObserver(([entry]) => {
+  if (!entry || !isLargeScreenLayout()) return;
+  const width = Math.floor(entry.contentRect.width);
+  if (width === lastColumnsWidth) return;
+  lastColumnsWidth = width;
+  clearTimeout(resizeTimeout);
+  resizeTimeout = window.setTimeout(() => setupSecondaryWidths(), 200);
+});
 
 export async function insertDragHandle(): Promise<void> {
   const { secondaryInner, dragHandle: exist } = getElements();
@@ -38,6 +38,8 @@ function updateDragHandleVisibility(enabled: boolean): void {
 export async function applySecondaryResizeSettings(): Promise<void> {
   const enabled = isEnabled && getLayoutSettings().largeSidebarEnabled;
   updateDragHandleVisibility(enabled);
+  columnsObserver.disconnect();
+  clearTimeout(resizeTimeout);
 
   if (!enabled) {
     clearSecondaryWidths();
@@ -45,8 +47,12 @@ export async function applySecondaryResizeSettings(): Promise<void> {
   }
 
   await insertDragHandle();
+  const { columns } = getElements();
+  if (columns) {
+    lastColumnsWidth = getColumnsWidth(columns);
+    columnsObserver.observe(columns);
+  }
   await setupSecondaryWidths();
-  handleFullscreenResize();
 }
 
 type SidebarElements = {
@@ -104,7 +110,12 @@ export async function setupSecondaryWidths(retryCount = 0): Promise<void> {
         return;
       }
 
-      const columnsWidth = columns.clientWidth;
+      if (isDragging) return;
+      const columnsWidth = getColumnsWidth(columns);
+      if (columnsWidth < MIN_PRIMARY_WIDTH + MIN_SECONDARY_WIDTH) {
+        clearSecondaryWidths();
+        return;
+      }
       const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
       let secondaryWidth = Math.floor(savedWidth);
       secondaryWidth = Math.min(Math.max(secondaryWidth, MIN_SECONDARY_WIDTH), maxSecondaryWidth);
@@ -141,7 +152,11 @@ function handleDrag(): void {
     dragHandle.classList.remove('dragging');
     document.documentElement.style.userSelect = '';
     (async () => {
-      const columnsWidth = columns.clientWidth;
+      const columnsWidth = getColumnsWidth(columns);
+      if (columnsWidth < MIN_PRIMARY_WIDTH + MIN_SECONDARY_WIDTH) {
+        clearSecondaryWidths();
+        return;
+      }
       const secondaryWidth = Math.round(secondary.getBoundingClientRect().width);
       const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
       const clamped = Math.min(Math.max(Math.round(secondaryWidth), MIN_SECONDARY_WIDTH), maxSecondaryWidth);
@@ -152,10 +167,12 @@ function handleDrag(): void {
 
   const move = (clientX: number) => {
     if (!isDragging) return;
+    const style = getComputedStyle(columns);
+    const columnsWidth = getColumnsWidth(columns, style);
+    if (columnsWidth < MIN_PRIMARY_WIDTH + MIN_SECONDARY_WIDTH) return;
     const rect = columns.getBoundingClientRect();
-    const columnsWidth = columns.clientWidth;
     const maxSecondaryWidth = Math.max(columnsWidth - MIN_PRIMARY_WIDTH, MIN_SECONDARY_WIDTH);
-    let secondaryWidth = rect.right - clientX;
+    let secondaryWidth = rect.right - parseFloat(style.borderRightWidth) - parseFloat(style.paddingRight) - clientX;
     secondaryWidth = Math.min(Math.max(secondaryWidth, MIN_SECONDARY_WIDTH), maxSecondaryWidth);
     const primaryWidth = columnsWidth - secondaryWidth;
     applySecondaryWidths(columnsWidth, primaryWidth, { primary, secondary, ytdWatchFlexy, video });
