@@ -73,3 +73,43 @@ ytd-watch-flexy.ycp-custom-sidebar-width {
 video.ycp-custom-sidebar-width {
   height: auto !important;
 }
+
+@media (min-width: 1017px) {
+  @supports (width: anchor-size(width)) {
+    .ycp-chat-below ytd-watch-flexy[live-chat-present-and-expanded]:not([fullscreen], [engagement-panel-expanded], [playlist-panel-expanded]):has(
+      > #columns > #primary #teaser-carousel:not([hidden]) > yt-video-metadata-carousel-view-model
+    ):has(> #columns #chat-container > #chat:not([hidden], [collapsed])) {
+      --ycp-chat-height: var(--ycp-custom-chat-height, clamp(200px, 40vh, 400px));
+
+      &[fixed-panels] > #columns {
+        padding-right: 0;
+      }
+
+      &[fixed-panels] #panels-full-bleed-container {
+        width: 0;
+      }
+
+      & #bottom-row > #description {
+        align-self: flex-start;
+      }
+
+      & #teaser-carousel {
+        padding-bottom: calc(var(--ycp-chat-height) + 8px);
+      }
+
+      & #teaser-carousel > yt-video-metadata-carousel-view-model {
+        anchor-name: --ycp-chat-card;
+      }
+
+      & > #columns #chat-container > #chat {
+        position: fixed;
+        position-anchor: --ycp-chat-card;
+        inset: calc(anchor(bottom) + 8px) auto auto anchor(left);
+        width: anchor-size(width);
+        height: var(--ycp-chat-height);
+        min-height: 0;
+        margin: 0;
+      }
+    }
+  }
+}

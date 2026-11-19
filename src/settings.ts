@@ -14,6 +14,8 @@ export type LayoutSetting = {
   stickyPlayer: boolean;
   stickyComments: boolean;
   largeSidebarEnabled?: boolean;
+  largeChatBelow?: boolean;
+  largeChatHeight?: number | null;
 }
 
 export type Layout = "large" | "medium";
@@ -60,7 +62,9 @@ function isCurrentLayoutSetting(value: unknown): value is LayoutSetting {
     (typeof setting.height === "number" || setting.height === null) &&
     typeof setting.stickyPlayer === "boolean" &&
     typeof setting.stickyComments === "boolean" &&
-    (setting.largeSidebarEnabled === undefined || typeof setting.largeSidebarEnabled === "boolean")
+    (setting.largeSidebarEnabled === undefined || typeof setting.largeSidebarEnabled === "boolean") &&
+    (setting.largeChatBelow === undefined || typeof setting.largeChatBelow === "boolean") &&
+    (setting.largeChatHeight == null || typeof setting.largeChatHeight === "number")
   );
 }
 

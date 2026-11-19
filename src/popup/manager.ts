@@ -137,13 +137,14 @@ export class PopupManager {
       }
 
       // オプション設定のイベントリスナー
-      type OptionId = 'stickyPlayer' | 'stickyComments' | 'largeSidebarEnabled';
+      type OptionId = 'stickyPlayer' | 'stickyComments' | 'largeSidebarEnabled' | 'largeChatBelow';
       const optionConfigs: Array<{ id: OptionId; elementId: string }> = [
         { id: 'stickyPlayer', elementId: `${layout}-sticky-player` },
         { id: 'stickyComments', elementId: `${layout}-sticky-comments` },
       ];
       if (layout === 'large') {
         optionConfigs.push({ id: 'largeSidebarEnabled', elementId: 'large-sidebar-resize-enabled' });
+        optionConfigs.push({ id: 'largeChatBelow', elementId: 'large-chat-below' });
       }
 
       optionConfigs.forEach(({ id: optionId, elementId }) => {
@@ -167,11 +168,22 @@ export class PopupManager {
               description.classList.toggle('d-none', !value);
             }
           }
+          if (optionId === 'largeChatBelow') {
+            document.getElementById('large-chat-height-setting')?.classList.toggle('d-none', !value);
+          }
         });
       });
 
       // 初期状態を設定
       updateDisabledState(this.settings[layout].position);
+    });
+
+    const chatHeight = document.getElementById('large-chat-height') as HTMLInputElement | null;
+    chatHeight?.addEventListener('change', () => {
+      if (!chatHeight.reportValidity()) return;
+      const height = chatHeight.valueAsNumber || null;
+      this.updateSettings({ large: { ...this.settings.large, largeChatHeight: height } });
+      if (height === null) this.fillAutoChatHeight(chatHeight);
     });
   }
 
@@ -245,6 +257,15 @@ export class PopupManager {
       // Large layout専用: サイドバー幅調整の初期化
       if (layout === 'large') {
         const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
+        const chatBelow = document.getElementById('large-chat-below') as HTMLInputElement | null;
+        if (chatBelow) chatBelow.checked = layoutSettings.largeChatBelow === true;
+        document.getElementById('large-chat-height-setting')?.classList.toggle('d-none', !chatBelow?.checked);
+        const chatHeight = document.getElementById('large-chat-height') as HTMLInputElement | null;
+        if (chatHeight) {
+          const height = layoutSettings.largeChatHeight;
+          if (typeof height === 'number') chatHeight.value = String(Math.max(200, height));
+          else this.fillAutoChatHeight(chatHeight);
+        }
         const description = document.getElementById('large-sidebar-resize-description') as HTMLElement | null;
         if (sidebarResizeEnabled) {
           sidebarResizeEnabled.checked = layoutSettings.largeSidebarEnabled || false;
@@ -259,6 +280,17 @@ export class PopupManager {
     setLayout('medium');
     setOptions('large');
     setOptions('medium');
+  }
+
+  private async fillAutoChatHeight(input: HTMLInputElement): Promise<void> {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab?.id === undefined) return;
+      const height = await chrome.tabs.sendMessage(tab.id, 'getAutoChatHeight');
+      if (!input.value && typeof height === 'number') input.value = String(height);
+    } catch {
+      // The active tab may not have a YouTube content script.
+    }
   }
 
   private setupMoreMenu(): void {
