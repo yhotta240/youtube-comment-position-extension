@@ -46,8 +46,17 @@ function rememberOriginalPositions(elements: YoutubeElements): void {
 
 function restoreOriginalPositions(elements: YoutubeElements): void {
   cancelRelatedMove();
-  restoreOriginalPosition(elements.comments);
-  restoreOriginalPosition(elements.related);
+  const { comments, related, below, secondary, secondaryInner, ytdWatchFlexy } = elements;
+  restoreOriginalPosition(comments);
+
+  if (related && secondary && secondaryInner && isLargeScreenLayout() && ytdWatchFlexy?.hasAttribute('is-two-columns_')) {
+    const marker = originalPositionMarkers.get(related);
+    if (marker && below?.contains(marker)) {
+      if (!secondary.contains(related)) secondaryInner.appendChild(related);
+      return;
+    }
+  }
+  restoreOriginalPosition(related);
 }
 
 export function resetCommentsLayout(elements: YoutubeElements): void {
