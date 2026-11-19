@@ -38,6 +38,10 @@
   margin: 15px 0 !important;
 }
 
+#comments:not(.ycp-comments-custom) .ycp-comment-header-sticky {
+  top: var(--ytd-masthead-height-accounting-for-hidden, 56px) !important;
+}
+
 .ycp-drag-handle {
   position: absolute;
   top: 0;
