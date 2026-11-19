@@ -9,12 +9,27 @@ function clearStickyCommentsObserver(): void {
   stickyCommentsObserver = undefined;
 }
 
-function applyStickyComments(comments: HTMLElement, shouldSticky: boolean): boolean {
-  const header = comments.querySelector<HTMLElement>("#header.style-scope");
-  if (!header?.querySelector<HTMLElement>("ytd-comments-header-renderer")) return false;
+function moveHeader(parent: HTMLElement, header: HTMLElement, before: ChildNode | null): void {
+  if ('moveBefore' in parent && typeof parent.moveBefore === 'function') parent.moveBefore(header, before);
+  else parent.insertBefore(header, before);
+}
 
-  header.classList.toggle('ycp-comment-header-sticky', shouldSticky);
-  return true;
+function applyStickyComments(comments: HTMLElement, shouldSticky: boolean, stickyOnPage: boolean): boolean {
+  const header = comments.querySelector<HTMLElement>("#header.style-scope");
+  if (!header) return false;
+
+  const ready = Boolean(header.querySelector("ytd-comments-header-renderer"));
+  const sections = comments.querySelector<HTMLElement>(':scope > #sections');
+  if (sections) {
+    if (stickyOnPage && ready && header.parentElement === sections) {
+      moveHeader(comments, header, sections);
+    } else if (!stickyOnPage && header.parentElement === comments) {
+      moveHeader(sections, header, sections.firstChild);
+    }
+  }
+
+  header.classList.toggle('ycp-comment-header-sticky', shouldSticky && ready);
+  return ready;
 }
 
 export function makeStickyComments(): void {
@@ -26,15 +41,11 @@ export function makeStickyComments(): void {
   const comments = getElements().comments;
   if (!comments) return;
 
-  if (!isEnabled) {
-    comments.querySelector<HTMLElement>("#header.style-scope")?.classList.remove('ycp-comment-header-sticky');
-    return;
-  }
-
-  if (applyStickyComments(comments, shouldSticky)) return;
+  const stickyOnPage = shouldSticky && !isLargeScreen && comments.classList.contains('ycp-comments-custom');
+  if (applyStickyComments(comments, shouldSticky, stickyOnPage) || !isEnabled) return;
 
   stickyCommentsObserver = new MutationObserver(() => {
-    if (applyStickyComments(comments, shouldSticky)) {
+    if (applyStickyComments(comments, shouldSticky, stickyOnPage)) {
       clearStickyCommentsObserver();
     }
   });
