@@ -4,6 +4,7 @@ import { YoutubeElements } from "../types";
 import { hideCinematics, toggleSticky } from "../utils/styles";
 
 let stickyPlayerTimer: number | undefined;
+let stickyPlayerSizeObserver: ResizeObserver | undefined;
 
 function clearStickyPlayerTimer(): void {
   if (stickyPlayerTimer !== undefined) {
@@ -15,8 +16,10 @@ function clearStickyPlayerTimer(): void {
 export function applyPlayerSticky(elements: YoutubeElements): void {
   const isLargeScreen = isLargeScreenLayout();
   clearStickyPlayerTimer();
+  stickyPlayerSizeObserver?.disconnect();
   const { isLargeStickyPlayer, isMediumStickyPlayer } = getLayoutSettings();
   const { player, ytdWatchFlexy, fullBleed } = elements;
+  ytdWatchFlexy?.style.removeProperty('--ycp-sticky-player-bottom');
 
   if (!player || !ytdWatchFlexy || !fullBleed) return;
 
@@ -26,8 +29,13 @@ export function applyPlayerSticky(elements: YoutubeElements): void {
   if (shouldSticky) {
     let attempts = 0;
     stickyPlayerTimer = window.setInterval(() => {
-      if (ytdWatchFlexy.offsetTop !== 0) {
-        toggleSticky(targetElement, true, ytdWatchFlexy.offsetTop);
+      const top = ytdWatchFlexy.offsetTop;
+      if (top !== 0) {
+        toggleSticky(targetElement, true, top);
+        stickyPlayerSizeObserver = new ResizeObserver(() => {
+          ytdWatchFlexy.style.setProperty('--ycp-sticky-player-bottom', `${top + targetElement.offsetHeight}px`);
+        });
+        stickyPlayerSizeObserver.observe(targetElement, { box: 'border-box' });
         hideCinematics(true);
         clearStickyPlayerTimer();
       } else if (++attempts >= 20) {
