@@ -20,13 +20,9 @@ function applyStickyComments(comments: HTMLElement, shouldSticky: boolean): bool
 export function makeStickyComments(): void {
   const isLargeScreen = isLargeScreenLayout();
   clearStickyCommentsObserver();
-  const { isLargeDefaultPosition, isLargeStickyComments, isMediumDefaultPosition, isMediumStickyComments } = getLayoutSettings();
+  const { isLargeStickyComments, isMediumStickyComments } = getLayoutSettings();
 
-  const shouldSticky =
-    isEnabled && (
-      (isLargeScreen && !isLargeDefaultPosition && isLargeStickyComments) ||
-      (!isLargeScreen && !isMediumDefaultPosition && isMediumStickyComments)
-    );
+  const shouldSticky = isEnabled && ((isLargeScreen && isLargeStickyComments) || (!isLargeScreen && isMediumStickyComments));
   const comments = getElements().comments;
   if (!comments) return;
 

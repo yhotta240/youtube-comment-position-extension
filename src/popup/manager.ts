@@ -92,28 +92,11 @@ export class PopupManager {
       const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
       const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
       const imageEl = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
-      const stickyPlayerEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
-      const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
-
-      // デフォルト配置かどうかで高さとオプションを有効/無効化
-      const updateDisabledState = (position: string) => {
-        const isDefault = position === `${layout}-default`;
-        if (heightInput) heightInput.disabled = isDefault;
-        if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
-        if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
-
-        // Large layout専用: サイドバー幅調整の無効化
-        if (layout === 'large') {
-          const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
-          if (sidebarResizeEnabled) sidebarResizeEnabled.disabled = isDefault;
-        }
-      };
-
       if (positionEl && heightInput && imageEl) {
         positionEl.addEventListener('change', () => {
           const selectedPosition = positionEl.value as keyof typeof IMG_MAP;
           imageEl.src = IMG_MAP[selectedPosition] || '';
-          updateDisabledState(selectedPosition);
+          heightInput.disabled = selectedPosition === `${layout}-default`;
           const patch: Partial<Settings> = {
             [layout]: {
               ...this.settings[layout],
@@ -173,9 +156,6 @@ export class PopupManager {
           }
         });
       });
-
-      // 初期状態を設定
-      updateDisabledState(this.settings[layout].position);
     });
 
     const chatHeight = document.getElementById('large-chat-height') as HTMLInputElement | null;
@@ -226,25 +206,12 @@ export class PopupManager {
       const heightInput = document.getElementById(`${layout}-height`) as HTMLInputElement | null;
       const positionEl = document.getElementById(`${layout}-position`) as HTMLSelectElement | null;
       const image = document.getElementById(`${layout}-image`) as HTMLImageElement | null;
-      const stickyPlayerEl = document.getElementById(`${layout}-sticky-player`) as HTMLInputElement | null;
-      const stickyCommentsEl = document.getElementById(`${layout}-sticky-comments`) as HTMLInputElement | null;
-
       if (positionEl && heightInput && image) {
         heightInput.value = layoutSettings.height !== null ? String(layoutSettings.height) : '';
         positionEl.value = layoutSettings.position;
         image.src = layoutSettings.img;
 
-        // デフォルト配置の場合は高さとオプションを無効化
-        const isDefault = layoutSettings.position === `${layout}-default`;
-        heightInput.disabled = isDefault;
-        if (stickyPlayerEl) stickyPlayerEl.disabled = isDefault;
-        if (stickyCommentsEl) stickyCommentsEl.disabled = isDefault;
-
-        // Large layout専用: サイドバー幅調整の初期無効化状態を設定
-        if (layout === 'large') {
-          const sidebarResizeEnabled = document.getElementById('large-sidebar-resize-enabled') as HTMLInputElement | null;
-          if (sidebarResizeEnabled) sidebarResizeEnabled.disabled = isDefault;
-        }
+        heightInput.disabled = layoutSettings.position === `${layout}-default`;
       }
     };
     const setOptions = (layout: Layout): void => {

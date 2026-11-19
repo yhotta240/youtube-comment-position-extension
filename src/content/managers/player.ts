@@ -15,15 +15,13 @@ function clearStickyPlayerTimer(): void {
 export function applyPlayerSticky(elements: YoutubeElements): void {
   const isLargeScreen = isLargeScreenLayout();
   clearStickyPlayerTimer();
-  const { isLargeDefaultPosition, isLargeStickyPlayer, isMediumDefaultPosition, isMediumStickyPlayer } = getLayoutSettings();
+  const { isLargeStickyPlayer, isMediumStickyPlayer } = getLayoutSettings();
   const { player, ytdWatchFlexy, fullBleed } = elements;
 
   if (!player || !ytdWatchFlexy || !fullBleed) return;
 
   const targetElement = isLargeScreen ? player : fullBleed;
-  const shouldSticky = isEnabled && (isLargeScreen
-    ? (!isLargeDefaultPosition && isLargeStickyPlayer)
-    : (!isMediumDefaultPosition && isMediumStickyPlayer));
+  const shouldSticky = isEnabled && ((isLargeScreen && isLargeStickyPlayer) || (!isLargeScreen && isMediumStickyPlayer));
 
   if (shouldSticky) {
     let attempts = 0;
